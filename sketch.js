@@ -137,4 +137,43 @@ function draw()
     fill(255);
     ellipse(gameChar_x + 10, gameChar_y - 22, 3, 15); // Reflection
 
+	//Jumping right
+	stroke(100);
+	noFill();
+	rect(20, 460, 50, 80);
+	noStroke();
+	fill(0);
+	text("5. Jumping to the right", 20, 560);
+
+	gameChar_x = 45;
+	gameChar_y = 537;
+
+    fill(232, 232, 232);
+    stroke(0);
+    rect(gameChar_x - 15, gameChar_y - 57, 30, 50, 3); // Body
+    
+    rect(gameChar_x - 13, gameChar_y - 7, 7, 5); // Left leg
+    rect(gameChar_x + 6, gameChar_y - 7, 7, 3); // Right leg
+    
+    rect(gameChar_x - 20, gameChar_y - 37, 5, -5); // Left arm
+    rect(gameChar_x - 15, gameChar_y - 42, 5, -18); // Left arm
+    
+    rect(gameChar_x + 15, gameChar_y - 32, 5, -10); // Right arm
+    rect(gameChar_x + 20, gameChar_y - 42, 5, -18); // Right arm
+    
+    fill(175, 175, 175);
+    ellipse(gameChar_x + 2, gameChar_y - 42, 5, 7); // Mouth
+    fill(0);
+    ellipse(gameChar_x - 5, gameChar_y - 49, 2, 3); // Left eye
+    ellipse(gameChar_x + 11, gameChar_y - 49, 2, 3); // Right eye
+    
+    fill(179, 167, 0);
+    ellipse(gameChar_x, gameChar_y - 67, 25, 5); // Outter Halo
+    fill(255);
+    ellipse(gameChar_x, gameChar_y - 67, 20, 5); // Inner Halo
+    
+    noStroke();
+    fill(255);
+    ellipse(gameChar_x + 10, gameChar_y - 22, 3, 15); // Reflection
+
 }

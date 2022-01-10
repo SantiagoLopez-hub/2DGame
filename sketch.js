@@ -1,15 +1,21 @@
 var gameChar_x;
 var gameChar_y;
 var floorPos_y;
+var scrollPos;
+var gameChar_world_x;
+var gameCharScore;
+var isGameOver;
+
 var isLeft;
 var isRight;
-var scrollPos;
+var isFalling;
+var isPlummeting;
 
-var clouds;
-var mountains;
-var trees_x;
-var canyons;
-var collectables;
+var trees_x = [],
+    clouds = [],
+    mountains = [],
+    canyons,
+    collectables;
 
 function setup()
 {
@@ -17,68 +23,86 @@ function setup()
 	floorPos_y = height * 3/4;
 	gameChar_x = width/2;
 	gameChar_y = floorPos_y;
-
-	isLeft = false;
-	isRight = false;
-
+    
+	// Variable to control the background scrolling
 	scrollPos = 0;
 
-    trees_x = [-1000, -800, -500, 80, 250, 570, 818, 1200, 2000];
-    clouds = [
-        {
-            pos_x: 23
-        },
-        {
-            pos_x: 200
-        },
-        {
-            pos_x: 700
-        },
-        {
-            pos_x: 1000
-        },
-        {
-            pos_x: 1400
-        },
-        {
-            pos_x: -500
-        },
-        {
-            pos_x: -700
-        }
-    ];
+	// Variable to store position of character, needed for collision detection
+	gameChar_world_x = gameChar_x - scrollPos;
+
+	// Boolean variables to control the movement of the game character
+	isLeft = false;
+	isRight = false;
+	isFalling = false;
+	isPlummeting = false;
+
+	// Initialise arrays of scenery objects
+    // The following arrays place objects based on their properties which will be random
+    for(var g = 0; g < 40; g++)
+    {
+        trees_x.push(random(-5000, 5000));
+    }
+
+    for(var g = 0; g < 30; g++)
+    {
+        clouds.push(
+            {
+                pos_x: random(-5000, 5000)
+            }
+        );
+    }
     
-    mountains = [
-        {
-            pos_x_offset: -100
-        },
-        {
-            pos_x_offset: 380
-        },
-        {
-            pos_x_offset: 450
-        },
-        {
-            pos_x_offset: -450
-        },
-        {
-            pos_x_offset: 800
-        },
-        {
-            pos_x_offset: 1200
-        }
-    ];
+    // The property "pos_x_offset" is the offset based on the center
+    //of the screen on the x axis
+    for(var g = 0; g < 25; g++)
+    {
+        mountains.push(
+            {
+                pos_x_offset: random(-4000, 3000)
+            }
+        );
+    }
+    
+    // The remaining are fixed as it could influence gameplay
     canyons = [
+        {
+            pos_x: -500,
+            width: 100
+        },
+        {
+            pos_x: -800,
+            width: 100
+        },
+        {
+            pos_x: -1000,
+            width: 100
+        },
+        {
+            pos_x: -1800,
+            width: 100
+        },
+        {
+            pos_x: -2900,
+            width: 100
+        },
+        {
+            pos_x: -3400,
+            width: 100
+        },
+        {
+            pos_x: -4900,
+            width: 100
+        },
         {
             pos_x: 100,
             width: 100
         },
         {
-            pos_x: 800,
+            pos_x: 500,
             width: 100
         },
         {
-            pos_x: -500,
+            pos_x: 800,
             width: 100
         },
         {
@@ -88,43 +112,95 @@ function setup()
         {
             pos_x: 1800,
             width: 100
+        },
+        {
+            pos_x: 1500,
+            width: 100
+        },
+        {
+            pos_x: 2000,
+            width: 100
+        },
+        {
+            pos_x: 2500,
+            width: 100
+        },
+        {
+            pos_x: 3400,
+            width: 100
         }
     ];
+    
     collectables = [
         {
-            x_pos: 200,
-            y_pos: 0,
+            pos_x: -350,
+            pos_y: 0,
             size: 50,
-            primaryColour: [115, 50, 12],
-            secondaryColour: [133, 82, 0]
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
         },
         {
-            x_pos: -350,
-            y_pos: 0,
+            pos_x: -800,
+            pos_y: 0,
             size: 50,
-            primaryColour: [115, 50, 12],
-            secondaryColour: [133, 82, 0]
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
         },
         {
-            x_pos: -800,
-            y_pos: 0,
+            pos_x: -1000,
+            pos_y: 0,
             size: 50,
-            primaryColour: [115, 50, 12],
-            secondaryColour: [133, 82, 0]
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
         },
         {
-            x_pos: -1000,
-            y_pos: 0,
+            pos_x: -3000,
+            pos_y: 0,
             size: 50,
-            primaryColour: [115, 50, 12],
-            secondaryColour: [133, 82, 0]
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
         },
         {
-            x_pos: 1100,
-            y_pos: 0,
+            pos_x: -4100,
+            pos_y: 0,
             size: 50,
-            primaryColour: [115, 50, 12],
-            secondaryColour: [133, 82, 0]
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
+        },
+        {
+            pos_x: -5200,
+            pos_y: 0,
+            size: 50,
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
+        },
+        {
+            pos_x: 200,
+            pos_y: 0,
+            size: 50,
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
+        },
+        {
+            pos_x: 1100,
+            pos_y: 0,
+            size: 50,
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
+        },
+        {
+            pos_x: 3000,
+            pos_y: 0,
+            size: 50,
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
+        },
+        {
+            pos_x: 3500,
+            pos_y: 0,
+            size: 50,
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
         }
     ];
 }
@@ -134,158 +210,48 @@ function draw()
 	background(100, 155, 255); // fill the sky blue
 
 	noStroke();
-	fill(0, 155, 0);
+	fill(0,155,0);
 	rect(0, floorPos_y, width, height/4); // draw some green ground
+    
+    // Check if game is over
+    checkGameState();
 
-    push();
+    push(); // Allows for movement throughout the scene
     translate(scrollPos, 0);
     
-	// Draw clouds.
-    for(var j = 0; j < clouds.length; j++){
-        new Cloud(clouds[j].pos_x);
-    }
-    
-	// Draw mountains.
-    for(var k = 0; k < mountains.length; k++){
-        new Mountain(mountains[k].pos_x_offset);
-    }
+	// Draw clouds
+    drawClouds();
 
-	// Draw trees.
-    for(var i = 0; i < trees_x.length; i++){
-        //Tree
-        noStroke();
-        fill(84, 56, 0);
-        beginShape();
-        vertex(trees_x[i] + 25, floorPos_y - 62);
-        vertex(trees_x[i] + 25, floorPos_y - 32);
-        vertex(trees_x[i] + 40, floorPos_y);
-        vertex(trees_x[i] - 35, floorPos_y);
-        vertex(trees_x[i] - 25, floorPos_y - 82);
-        vertex(trees_x[i] - 25, floorPos_y - 82);
-        endShape(CLOSE);
+	// Draw mountains
+    drawMountains();
 
-        //Tree branches
-        fill(21, 115, 0);
-        ellipse(trees_x[i] - 5, floorPos_y - 132, 90, 80);
-        ellipse(trees_x[i] - 25, floorPos_y - 82, 90, 80);
-        ellipse(trees_x[i] - 75, floorPos_y - 132, 90, 80);
-        ellipse(trees_x[i] - 25, floorPos_y - 182, 75, 90);
-        ellipse(trees_x[i] + 25, floorPos_y - 172, 100, 100);
-        ellipse(trees_x[i] + 75, floorPos_y - 142, 90, 70);
-        ellipse(trees_x[i] + 75, floorPos_y - 102, 100, 80);
-        ellipse(trees_x[i] + 25, floorPos_y - 82, 80, 60);
-    }
+	// Draw trees
+    drawTrees();
+
 	// Draw canyons
-    for(var n = 0; n < canyons.length; n++){
-        //Canyon
-        fill(50, 10, 0);
-        rect(canyons[n].pos_x + 70, 432, canyons[n].width, 144);
-
-        beginShape(); // Water effect
-        fill(48, 140, 161);
-        vertex(canyons[n].pos_x + 170, 460);
-        vertex(canyons[n].pos_x + 120, 470);
-        vertex(canyons[n].pos_x + 140, 485);
-        vertex(canyons[n].pos_x + 70, 520);
-
-        vertex(canyons[n].pos_x + 70, 576);
-        vertex(canyons[n].pos_x + 130, 576);
-
-        vertex(canyons[n].pos_x + 170, 510);
-        vertex(canyons[n].pos_x + 170, 485);
-        vertex(canyons[n].pos_x + 150, 475);
-        vertex(canyons[n].pos_x + 150, 475);
-        vertex(canyons[n].pos_x + 170, 470);
-        endShape(CLOSE);
+    for(var n = 0; n < canyons.length; n++)
+    {
+        drawCanyon(canyons[n]);
+        checkCanyon(canyons[n]);
     }
-    
-    
-	// Draw Bear
-    for(var a = 0; a < collectables.length; a++){
-        // Bear
-        //Outlining bear structure for ease of visualisation
-        stroke(0);
 
-        //Arms
-        fill(115, 50, 12);
-
-        push(); //Left arm
-        translate(collectables[a].x_pos + 525, collectables[a].y_pos + 390);
-        rotate(0.5);
-        ellipse(0, 0, 35, 20);
-        pop();
-
-        push(); //Right arm
-        translate(collectables[a].x_pos + 475, collectables[a].y_pos + 390);
-        rotate(-0.5);
-        ellipse(0, 0, 35, 20);
-        pop();
-
-        //Body
-        fill(115, 50, 12);
-        ellipse(collectables[a].x_pos + 500,
-                collectables[a].y_pos + 400,
-                collectables[a].size - (collectables[a].size / 5),
-                collectables[a].size);
-
-        //Legs
-        fill(collectables[a].secondaryColour);
-        //Left leg
-        ellipse(collectables[a].x_pos + 485, collectables[a].y_pos + 410, 20, 27);
-        //Right leg
-        ellipse(collectables[a].x_pos + 515, collectables[a].y_pos + 410, 20, 27);
-
-        //Head
-        ellipse(collectables[a].x_pos + 485, collectables[a].y_pos + 360, 17); //Left ear
-        ellipse(collectables[a].x_pos + 515, collectables[a].y_pos + 360, 17); //Right ear
-
-        fill(200);
-        ellipse(collectables[a].x_pos + 485, collectables[a].y_pos + 360, 10); //Left ear inside
-        ellipse(collectables[a].x_pos + 515, collectables[a].y_pos + 360, 10); //Right ear inside
-
-        fill(collectables[a].primaryColour);
-        ellipse(collectables[a].x_pos + 500, collectables[a].y_pos + 370, 36); //Face
-
-        fill(collectables[a].secondaryColour);
-        ellipse(collectables[a].x_pos + 500, collectables[a].y_pos + 378, 23, 18); //Snout
-
-        fill(0);
-        ellipse(collectables[a].x_pos + 493, collectables[a].y_pos + 365, 5); //Left eye
-        ellipse(collectables[a].x_pos + 507, collectables[a].y_pos + 365, 5); //Right eye
-        triangle(collectables[a].x_pos + 500, collectables[a].y_pos + 379, collectables[a].x_pos + 504, collectables[a].y_pos + 375, collectables[a].x_pos + 496, collectables[a].y_pos + 375); //Nose
-        line(collectables[a].x_pos + 499.5, collectables[a].y_pos + 382, collectables[a].x_pos + 499.5, collectables[a].y_pos + 375);
-
-        beginShape();
-        noFill();
-        vertex(collectables[a].x_pos + 494, collectables[a].y_pos + 382);
-        vertex(collectables[a].x_pos + 496, collectables[a].y_pos + 383);
-        vertex(collectables[a].x_pos + 499, collectables[a].y_pos + 383);
-
-        vertex(collectables[a].x_pos + 502, collectables[a].y_pos + 383);
-        vertex(collectables[a].x_pos + 505, collectables[a].y_pos + 383);
-        vertex(collectables[a].x_pos + 506, collectables[a].y_pos + 382);
-        endShape();
+	// Draw collectable items
+    for(var a = 0; a < collectables.length; a++)
+    {
+        
+        if(!collectables[a].isFound)
+        {
+            drawCollectable(collectables[a]);
+            checkCollectable(collectables[a]);
+        }
     }
+
+    pop(); // Supports the movement throughout the scene
     
-    pop();
+	// Draw game character
+	drawGameChar();
 
-	// game character
-    fill(232, 232, 232);
-    stroke(0);
-    rect(gameChar_x - 15, gameChar_y - 57, 30, 50, 3); // Body
-
-    rect(gameChar_x - 13, gameChar_y - 7, 7, 5); // Left leg
-    rect(gameChar_x + 6, gameChar_y - 7, 7, 5); // Right leg
-
-    rect(gameChar_x - 20, gameChar_y - 32, 5, 20); // Left arm
-    rect(gameChar_x + 15, gameChar_y - 32, 5, 20); // Right arm
-
-    line(gameChar_x - 5, gameChar_y - 42, gameChar_x + 5, gameChar_y - 42); // Mouth
-    ellipse(gameChar_x - 8, gameChar_y - 49, 1, 3); // Left eye
-    ellipse(gameChar_x + 8, gameChar_y - 49, 1, 3); // Right eye
-
-
-	// game character movement
+	// Logic to make the game character move or the background scroll
 	if(isLeft)
 	{
 		if(gameChar_x > width * 0.2)
@@ -308,44 +274,340 @@ function draw()
 		{
 			scrollPos -= 5; // negative for moving against the background
 		}
-
 	}
+
+	// Update real position of gameChar for collision detection
+	gameChar_world_x = gameChar_x - scrollPos;
 }
 
 function keyPressed()
 {
-
-	if(key == 'A' || keyCode == 37)
-	{
-		isLeft = true;
-	}
-
-	if(key == 'D' || keyCode == 39)
-	{
-		isRight = true;
-	}
-
+    // A key
+    if(keyCode == 65)
+    {
+        isLeft = true; // Moves left
+    }
+    
+    // D key
+    if(keyCode == 68)
+    {
+        isRight = true; // Moves right
+    }
+    
+    // W key or Spacebar
+    if((keyCode == 87 || keyCode == 32) && gameChar_y == floorPos_y)
+    {
+        gameChar_y -= 120; // Jumps
+        isFalling = true;
+    }
 }
 
 function keyReleased()
-{
-	if(key == 'A' || keyCode == 37)
-	{
-		isLeft = false;
-	}
-
-	if(key == 'D' || keyCode == 39)
-	{
-		isRight = false;
-	}
+{    
+    // A key
+    if(keyCode == 65)
+    {
+        isLeft = false; // Stops moving left
+    }
+    
+    // D key
+    if(keyCode == 68)
+    {
+        isRight = false; // Stops moving right
+    }
 }
 
+function drawGameChar()
+{
+	// draw game character
+	if(isLeft && isFalling)
+	{
+		// jumping-left code
+        fill(232, 232, 232);
+        stroke(0);
+        rect(gameChar_x - 15, gameChar_y - 57, 30, 50, 3); // Body
+
+        rect(gameChar_x - 13, gameChar_y - 7, 7, 3); // Left leg
+        rect(gameChar_x + 6, gameChar_y - 7, 7, 5); // Right leg
+
+        rect(gameChar_x - 20, gameChar_y - 32, 5, -10); // Left arm
+        rect(gameChar_x - 25, gameChar_y - 42, 5, -18); // Left arm
+
+        rect(gameChar_x + 15, gameChar_y - 37, 5, -5); // Right arm
+        rect(gameChar_x + 10, gameChar_y - 42, 5, -18); // Right arm
+
+        fill(175, 175, 175);
+        ellipse(gameChar_x - 2, gameChar_y - 42, 5, 7); // Mouth
+        fill(0);
+        ellipse(gameChar_x - 11, gameChar_y - 49, 2, 3); // Left eye
+        ellipse(gameChar_x + 5, gameChar_y - 49, 2, 3); // Right eye
+
+        fill(179, 167, 0);
+        ellipse(gameChar_x, gameChar_y - 67, 25, 5); // Outter Halo
+        fill(255);
+        ellipse(gameChar_x, gameChar_y - 67, 20, 5); // Inner Halo
+
+        noStroke();
+        fill(255);
+        ellipse(gameChar_x - 10, gameChar_y - 22, 3, 15); // Reflection
+
+	}
+	else if(isRight && isFalling)
+	{
+		// jumping-right code
+        fill(232, 232, 232);
+        stroke(0);
+        rect(gameChar_x - 15, gameChar_y - 57, 30, 50, 3); // Body
+
+        rect(gameChar_x - 13, gameChar_y - 7, 7, 5); // Left leg
+        rect(gameChar_x + 6, gameChar_y - 7, 7, 3); // Right leg
+
+        rect(gameChar_x - 20, gameChar_y - 37, 5, -5); // Left arm
+        rect(gameChar_x - 15, gameChar_y - 42, 5, -18); // Left arm
+
+        rect(gameChar_x + 15, gameChar_y - 32, 5, -10); // Right arm
+        rect(gameChar_x + 20, gameChar_y - 42, 5, -18); // Right arm
+
+        fill(175, 175, 175);
+        ellipse(gameChar_x + 2, gameChar_y - 42, 5, 7); // Mouth
+        fill(0);
+        ellipse(gameChar_x - 5, gameChar_y - 49, 2, 3); // Left eye
+        ellipse(gameChar_x + 11, gameChar_y - 49, 2, 3); // Right eye
+
+        fill(179, 167, 0);
+        ellipse(gameChar_x, gameChar_y - 67, 25, 5); // Outter Halo
+        fill(255);
+        ellipse(gameChar_x, gameChar_y - 67, 20, 5); // Inner Halo
+
+        noStroke();
+        fill(255);
+        ellipse(gameChar_x + 10, gameChar_y - 22, 3, 15); // Reflection
+
+	}
+	else if(isLeft)
+	{
+		// walking left code
+        fill(232, 232, 232);
+        stroke(0);
+        rect(gameChar_x - 15, gameChar_y - 57, 30, 50, 3); // Body
+
+        rect(gameChar_x - 13, gameChar_y - 7, 7, 3); // Left leg
+        rect(gameChar_x + 6, gameChar_y - 7, 7, 5); // Right leg
+
+        rect(gameChar_x - 20, gameChar_y - 32, 5, 10); // Left arm
+        rect(gameChar_x - 25, gameChar_y - 22, 5, 10); // Left arm
+
+        rect(gameChar_x + 15, gameChar_y - 32, 5, 5); // Right arm
+        rect(gameChar_x + 10, gameChar_y - 27, 5, 5); // Right arm
+        rect(gameChar_x + 5, gameChar_y - 22, 5, 10); // Right arm
+
+        line(gameChar_x - 5, gameChar_y - 42, gameChar_x + 2, gameChar_y - 42); // Mouth
+        ellipse(gameChar_x - 11, gameChar_y - 49, 1, 3); // Left eye
+        ellipse(gameChar_x + 5, gameChar_y - 49, 1, 3); // Right eye
+
+        noStroke();
+        fill(255);
+        ellipse(gameChar_x - 10, gameChar_y - 22, 3, 15); // Reflection
+
+	}
+	else if(isRight)
+	{
+		// walking right code
+        fill(232, 232, 232);
+        stroke(0);
+        rect(gameChar_x - 15, gameChar_y - 57, 30, 50, 3); // Body
+
+        rect(gameChar_x - 13, gameChar_y - 7, 7, 5); // Left leg
+        rect(gameChar_x + 6, gameChar_y - 7, 7, 3); // Right leg
+
+        rect(gameChar_x - 20, gameChar_y - 32, 5, 10); // Left arm
+        rect(gameChar_x - 15, gameChar_y - 22, 5, 5); // Left arm
+        rect(gameChar_x - 10, gameChar_y - 17, 5, 5); // Left arm
+
+        rect(gameChar_x + 15, gameChar_y - 32, 5, 10); // Right arm
+        rect(gameChar_x + 20, gameChar_y - 22, 5, 10); // Right arm
+
+        line(gameChar_x - 2, gameChar_y - 42, gameChar_x + 5, gameChar_y - 42); // Mouth
+        ellipse(gameChar_x - 5, gameChar_y - 49, 1, 3); // Left eye
+        ellipse(gameChar_x + 11, gameChar_y - 49, 1, 3); // Right eye
+
+        noStroke();
+        fill(255);
+        ellipse(gameChar_x + 10, gameChar_y - 22, 3, 15); // Reflection
+
+	}
+	else if(isFalling || isPlummeting)
+	{
+		// jumping facing forwards code
+        fill(232, 232, 232);
+        stroke(0);
+        rect(gameChar_x - 15, gameChar_y - 57, 30, 50, 3); // Body
+
+        rect(gameChar_x - 13, gameChar_y - 7, 7, 5); // Left leg
+        rect(gameChar_x + 6, gameChar_y - 7, 7, 5); // Right leg
+
+        rect(gameChar_x - 20, gameChar_y - 32, 5, -28); // Left arm
+        rect(gameChar_x + 15, gameChar_y - 32, 5, -28); // Right arm
+
+        fill(175, 175, 175);
+        ellipse(gameChar_x, gameChar_y - 42, 5, 7); // Mouth
+        fill(0);
+        ellipse(gameChar_x - 8, gameChar_y - 49, 2, 3); // Left eye
+        ellipse(gameChar_x + 8, gameChar_y - 49, 2, 3); // Right eye
+
+        fill(179, 167, 0);
+        ellipse(gameChar_x, gameChar_y - 67, 25, 5); // Outter Halo
+        fill(255);
+        ellipse(gameChar_x, gameChar_y - 67, 20, 5); // Inner Halo
+
+	}
+	else
+	{
+		// standing front facing code
+        fill(232, 232, 232);
+        stroke(0);
+        rect(gameChar_x - 15, gameChar_y - 57, 30, 50, 3); // Body
+
+        rect(gameChar_x - 13, gameChar_y - 7, 7, 5); // Left leg
+        rect(gameChar_x + 6, gameChar_y - 7, 7, 5); // Right leg
+
+        rect(gameChar_x - 20, gameChar_y - 32, 5, 20); // Left arm
+        rect(gameChar_x + 15, gameChar_y - 32, 5, 20); // Right arm
+
+        line(gameChar_x - 5, gameChar_y - 42, gameChar_x + 5, gameChar_y - 42); // Mouth
+        ellipse(gameChar_x - 8, gameChar_y - 49, 1, 3); // Left eye
+        ellipse(gameChar_x + 8, gameChar_y - 49, 1, 3); // Right eye
+	}
+    
+    // Interaction code
+    if(gameChar_y < floorPos_y)
+    {
+        gameChar_y += 4;
+        isFalling = true;
+    }
+    else
+    {
+        isFalling = false;
+    }
+
+}
+
+// draw cloud objects
+function drawClouds()
+{
+    for(var j = 0; j < clouds.length; j++)
+    {
+        // Draws clouds from the "Cloud" class
+        new Cloud(clouds[j].pos_x);
+    }
+}
+
+// draw mountains objects
+function drawMountains()
+{
+    for(var k = 0; k < mountains.length; k++)
+    {
+        // Draws mountains from the "Mountain" class
+        new Mountain(mountains[k].pos_x_offset);
+    }
+}
+
+// draw trees objects
+function drawTrees()
+{
+    for(var i = 0; i < trees_x.length; i++)
+    {
+        // Draws trees from the "Tree" class
+        new Tree(trees_x[i], floorPos_y);
+    }
+}
+
+// draw canyon objects
+function drawCanyon(t_canyon)
+{
+    // Draws canyons
+    new Canyon(t_canyon.pos_x, t_canyon.width);
+}
+
+
+// check character is over a canyon
+function checkCanyon(t_canyon)
+{
+    if(gameChar_world_x >= (t_canyon.pos_x + 70) 
+       && 
+       gameChar_world_x <= (t_canyon.pos_x + 70 + t_canyon.width)
+       && 
+       gameChar_y >= floorPos_y)
+    {
+        isPlummeting = true;
+    }
+    else
+    {
+        isPlummeting = false;
+    }
+    
+    if(isPlummeting)
+    {
+        gameChar_y += 15;
+        isGameOver = true;
+    }
+}
+
+// draw collectable objects
+function drawCollectable(t_collectable)
+{
+    new Collectable(t_collectable)
+}
+
+// check character has collected an item
+function checkCollectable(t_collectable)
+{
+    // Calculate the distance between the collectable and the character
+    var distance = dist(gameChar_world_x, gameChar_y, t_collectable.pos_x + 500, t_collectable.pos_y + 400);
+    
+    if(distance <= 65)
+    {
+        t_collectable.isFound = true;
+    }
+}
+
+function getCurrentScore()
+{
+    gameCharScore = 0;
+    for(var i = 0; i < collectables.length; i++)
+    {
+        if(collectables[i].isFound)
+        {
+            gameCharScore++;
+        }
+    }
+    
+    document.getElementById("score").innerHTML = gameCharScore;
+}
+
+// Ask to click reload when game is over
+function checkGameState()
+{
+    if(isGameOver)
+    {
+        document.getElementById("GameOverText").style.display = "block";
+    }
+    else
+    {
+        // Gets current score based on how many collectables have been picked up
+        getCurrentScore();
+    }
+}
+
+// Class that generates Clouds
 class Cloud{
-    constructor(offset){
+    constructor(offset)
+    {
         this.buildCloud(offset);
     }
 
-    buildCloud(offset){
+    buildCloud(offset)
+    {
         fill(255, 255, 255);
         ellipse(100 + offset, 100, 50, 50);
         ellipse(115 + offset, 80, 60, 50);
@@ -362,12 +624,15 @@ class Cloud{
     }
 }
 
+// Class that generates Mountains
 class Mountain{
-    constructor(offset){
+    constructor(offset)
+    {
         this.buildMountain(offset);
     }
     
-    buildMountain(offset){
+    buildMountain(offset)
+    {
         fill(102, 51, 0);
         triangle(450 + offset, 432, (((450 + offset) + (600 + offset)) / 2), 100, 600 + offset, 432);
 
@@ -376,5 +641,153 @@ class Mountain{
 
         fill(224, 224, 224);
         triangle(502 + offset, 200, (((450 + offset) + (600 + offset)) / 2), 100, 550 + offset, 210);
+    }
+}
+
+// Class that generates Trees
+class Tree{
+    constructor(trees_x, floorPos_y)
+    {
+        this.buildTree(trees_x, floorPos_y);
+    }
+    
+    buildTree(trees_x, floorPos_y)
+    {
+        // Tree trunk
+        noStroke();
+        fill(84, 56, 0);
+        beginShape();
+        vertex(trees_x + 25, floorPos_y - 62);
+        vertex(trees_x + 25, floorPos_y - 32);
+        vertex(trees_x + 40, floorPos_y);
+        vertex(trees_x - 35, floorPos_y);
+        vertex(trees_x - 25, floorPos_y - 82);
+        vertex(trees_x - 25, floorPos_y - 82);
+        endShape(CLOSE);
+
+        // Tree branches
+        fill(21, 115, 0);
+        ellipse(trees_x - 5, floorPos_y - 132, 90, 80);
+        ellipse(trees_x - 25, floorPos_y - 82, 90, 80);
+        ellipse(trees_x - 75, floorPos_y - 132, 90, 80);
+        ellipse(trees_x - 25, floorPos_y - 182, 75, 90);
+        ellipse(trees_x + 25, floorPos_y - 172, 100, 100);
+        ellipse(trees_x + 75, floorPos_y - 142, 90, 70);
+        ellipse(trees_x + 75, floorPos_y - 102, 100, 80);
+        ellipse(trees_x + 25, floorPos_y - 82, 80, 60);
+    }
+}
+
+// Class that generates Canyons
+class Canyon{
+    constructor(pos_x, width)
+    {
+        this.buildCanyon(pos_x, width);
+    }
+    
+    buildCanyon(pos_x, width)
+    {
+        fill(50, 10, 0);
+        rect(pos_x + 70, 432, width, 144);
+
+        beginShape(); // Water effect
+        fill(48, 140, 161);
+        vertex(pos_x + 170, 460);
+        vertex(pos_x + 120, 470);
+        vertex(pos_x + 140, 485);
+        vertex(pos_x + 70, 520);
+
+        vertex(pos_x + 70, 576);
+        vertex(pos_x + 130, 576);
+
+        vertex(pos_x + 170, 510);
+        vertex(pos_x + 170, 485);
+        vertex(pos_x + 150, 475);
+        vertex(pos_x + 150, 475);
+        vertex(pos_x + 170, 470);
+        endShape(CLOSE);
+    }
+}
+
+// Class that generates Collectables
+class Collectable{
+    constructor(t_collectable)
+    {
+        this.buildCollectable(t_collectable);
+    }
+    
+    buildCollectable(t_collectable)
+    {
+        //Outlining bear structure for ease of visualisation
+        stroke(0);
+
+        //Arms
+        fill(115, 50, 12);
+
+        push(); //Left arm
+        translate(t_collectable.pos_x + 525, t_collectable.pos_y + 390);
+        rotate(0.5);
+        ellipse(0, 0, 35, 20);
+        pop();
+
+        push(); //Right arm
+        translate(t_collectable.pos_x + 475, t_collectable.pos_y + 390);
+        rotate(-0.5);
+        ellipse(0, 0, 35, 20);
+        pop();
+
+        //Body
+        fill(115, 50, 12);
+        ellipse(t_collectable.pos_x + 500,
+                t_collectable.pos_y + 400,
+                t_collectable.size - (t_collectable.size / 5),
+                t_collectable.size);
+
+        //Legs
+        fill(t_collectable.secondary_colour);
+        //Left leg
+        ellipse(t_collectable.pos_x + 485, t_collectable.pos_y + 410, 20, 27);
+        //Right leg
+        ellipse(t_collectable.pos_x + 515, t_collectable.pos_y + 410, 20, 27);
+
+        //Head
+        ellipse(t_collectable.pos_x + 485, t_collectable.pos_y + 360, 17); //Left ear
+        ellipse(t_collectable.pos_x + 515, t_collectable.pos_y + 360, 17); //Right ear
+
+        fill(200);
+        ellipse(t_collectable.pos_x + 485, t_collectable.pos_y + 360, 10); //Left ear inside
+        ellipse(t_collectable.pos_x + 515, t_collectable.pos_y + 360, 10); //Right ear inside
+
+        fill(t_collectable.primary_colour);
+        ellipse(t_collectable.pos_x + 500, t_collectable.pos_y + 370, 36); //Face
+
+        fill(t_collectable.secondary_colour);
+        ellipse(t_collectable.pos_x + 500, t_collectable.pos_y + 378, 23, 18); //Snout
+
+        fill(0);
+        ellipse(t_collectable.pos_x + 493, t_collectable.pos_y + 365, 5); //Left eye
+        ellipse(t_collectable.pos_x + 507, t_collectable.pos_y + 365, 5); //Right eye
+        triangle(t_collectable.pos_x + 500, 
+                 t_collectable.pos_y + 379, 
+                 t_collectable.pos_x + 504, 
+                 t_collectable.pos_y + 375, 
+                 t_collectable.pos_x + 496, 
+                 t_collectable.pos_y + 375); //Nose
+
+        line(t_collectable.pos_x + 499.5, 
+             t_collectable.pos_y + 382, 
+             t_collectable.pos_x + 499.5, 
+             t_collectable.pos_y + 375);
+
+        beginShape();
+        noFill();
+        vertex(t_collectable.pos_x + 494, t_collectable.pos_y + 382);
+        vertex(t_collectable.pos_x + 496, t_collectable.pos_y + 383);
+        vertex(t_collectable.pos_x + 499, t_collectable.pos_y + 383);
+
+        vertex(t_collectable.pos_x + 502, t_collectable.pos_y + 383);
+        vertex(t_collectable.pos_x + 505, t_collectable.pos_y + 383);
+        vertex(t_collectable.pos_x + 506, t_collectable.pos_y + 382);
+        endShape();
     }
 }

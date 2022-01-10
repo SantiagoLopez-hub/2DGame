@@ -3,8 +3,38 @@
   <head>
     <script src="p5.min.js"></script>
     <script src="sketch.js"></script>
-    <style> body {padding: 0; margin: 0;} </style>
+    <style> 
+        body{
+            padding: 0; 
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        #GameOverText{
+            position: absolute;
+            display: none;
+            left: 150px;
+            top: 160px;
+            background-color: white;
+            padding: 2% 4%;
+            text-align: center;
+        }
+        #currentScore{
+            position: absolute;
+            left: 10px;
+        }
+      </style>
   </head>
   <body>
+      <div id="currentScore">
+          <p>Your current score: <span id="score"></span></p>
+      </div>
+      <div id="GameOverText">
+          <h1>Oh no... Game over!</h1>
+          <p>Start again?</p>
+          <br>
+          <button onclick="location.reload();">Obviously, it deserves a First Class</button>
+          <button onclick="location.reload();">Why not, it's so much fun</button>
+          <button onclick="location.reload();">Yes, I'm going to offer this guy a job</button>
+      </div>
   </body>
 </html>

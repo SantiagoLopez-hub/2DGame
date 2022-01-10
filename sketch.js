@@ -107,8 +107,9 @@ function draw()
 
 	//1. a cloud in the sky
 
+
 	//2. a mountain in the distance
-    
+
 	//3. a tree
 
     //Tree trunk
@@ -135,6 +136,27 @@ function draw()
     
 
 	//4. a canyon
+    
+    fill(50, 10, 0);
+    rect(70, 432, 100, 144);
+    
+    // Water effect
+    beginShape();
+    fill(48, 140, 161);
+    vertex(170, 460);
+    vertex(120, 470);
+    vertex(140, 485);
+    vertex(70, 520);
+    
+    vertex(70, 576);
+    vertex(130, 576);
+    
+    vertex(170, 510);
+    vertex(170, 485);
+    vertex(150, 475);
+    vertex(150, 475);
+    vertex(170, 470);
+    endShape(CLOSE);
     
     
 	//5. a bear

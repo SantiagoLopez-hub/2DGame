@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <title>Game Project</title>
+    <meta charset="utf-8">
     <script src="p5.min.js"></script>
+    <script src="p5.sound.min.js"></script>
     <script src="sketch.js"></script>
     <style> 
         body{
@@ -9,7 +12,7 @@
             margin: 0;
             font-family: Arial, sans-serif;
         }
-        #GameOverText{
+        #GameOverText, #GameWon{
             position: absolute;
             display: none;
             left: 150px;
@@ -18,22 +21,25 @@
             padding: 2% 4%;
             text-align: center;
         }
-        #currentScore{
-            position: absolute;
-            left: 10px;
-        }
       </style>
   </head>
   <body>
-      <div id="currentScore">
-          <p>Your current score: <span id="score"></span></p>
-      </div>
       <div id="GameOverText">
           <h1>Oh no... Game over!</h1>
-          <p>Start again?</p>
+          <p>Try again?</p>
           <br>
+          <button onclick="location.reload();">Obviously, it deserves so much</button>
           <button onclick="location.reload();">Why not, it's so much fun</button>
           <button onclick="location.reload();">Yes, I'm going to offer this guy a job</button>
+      </div>
+
+      <div id="GameWon">
+          <h1>You won!</h1>
+          <p>Start again?</p>
+          <br>
+          <button onclick="location.reload();">Who made this beautiful piece of art?</button>
+          <button onclick="location.reload();">This is the best game I've ever played</button>
+          <button onclick="location.reload();">Let's do this!</button>
       </div>
   </body>
 </html>

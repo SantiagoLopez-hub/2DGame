@@ -113,6 +113,10 @@ function draw()
     
 
 	//2. a mountain in the distance
+    var mountain3 = new Mountain(-80);
+    var mountain1 = new Mountain(0);
+    var mountain2 = new Mountain(130);
+
 
 	//3. a tree
 
@@ -287,5 +291,18 @@ class Cloud{
         ellipse(120 + offset, 125, 50, 50);
 
         ellipse(150 + offset, 100, 120, 50);
+    }
+}
+
+class Mountain{
+    constructor(offset){
+        fill(102, 51, 0);
+        triangle(450 + offset, 432, (((450 + offset) + (600 + offset)) / 2), 100, 600 + offset, 432);
+
+        fill(133, 66, 0);
+        triangle(490 + offset, 432, (((450 + offset) + (600 + offset)) / 2), 100, 600 + offset, 432);
+
+        fill(224, 224, 224);
+        triangle(502 + offset, 200, (((450 + offset) + (600 + offset)) / 2), 100, 550 + offset, 210);
     }
 }

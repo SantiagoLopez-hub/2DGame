@@ -3,8 +3,11 @@ var gameChar_y;
 var floorPos_y;
 var scrollPos;
 var gameChar_world_x;
-var gameCharScore;
-var isGameOver;
+var game_score;
+var flagpole;
+var lives;
+var spikes_x;
+var spikes = [];
 
 var isLeft;
 var isRight;
@@ -17,192 +20,47 @@ var trees_x = [],
     canyons,
     collectables;
 
+var weather,
+    temperature;
+var rain = [],
+    snow = [];
+
+var backgroundSound,
+    jumpSound,
+    scoreUpSound,
+    gameOverSound,
+    gameWonSound;
+
+function preload()
+{
+    soundFormats("mp3");
+
+    // The following will only load on a server,
+    //using brackets' "Live Preview" works, else it crashes
+    jumpSound = loadSound("assets/char_jump.mp3");
+    scoreUpSound = loadSound("assets/score_up.mp3");
+    gameOverSound = loadSound("assets/game_over.mp3");
+    gameWonSound = loadSound("assets/game_won.mp3");
+
+    // Using "playBackgroundSound" as a callback function, it will only
+    //execute once the file has loaded
+    backgroundSound = loadSound("assets/background_music.mp3", playBackgroundSound);
+}
+
+function playBackgroundSound()
+{
+    backgroundSound.setVolume(0.75);
+    backgroundSound.loop();
+}
+
 function setup()
 {
 	createCanvas(1024, 576);
 	floorPos_y = height * 3/4;
-	gameChar_x = width/2;
-	gameChar_y = floorPos_y;
-    
-	// Variable to control the background scrolling
-	scrollPos = 0;
+    weather = floor(random(0, 3));
+    lives = 4;
 
-	// Variable to store position of character, needed for collision detection
-	gameChar_world_x = gameChar_x - scrollPos;
-
-	// Boolean variables to control the movement of the game character
-	isLeft = false;
-	isRight = false;
-	isFalling = false;
-	isPlummeting = false;
-
-	// Initialise arrays of scenery objects
-    // The following arrays place objects based on their properties which will be random
-    for(var g = 0; g < 40; g++)
-    {
-        trees_x.push(random(-5000, 5000));
-    }
-
-    for(var g = 0; g < 30; g++)
-    {
-        clouds.push(
-            {
-                pos_x: random(-5000, 5000)
-            }
-        );
-    }
-    
-    // The property "pos_x_offset" is the offset based on the center
-    //of the screen on the x axis
-    for(var g = 0; g < 25; g++)
-    {
-        mountains.push(
-            {
-                pos_x_offset: random(-4000, 3000)
-            }
-        );
-    }
-    
-    // The remaining are fixed as it could influence gameplay
-    canyons = [
-        {
-            pos_x: -500,
-            width: 100
-        },
-        {
-            pos_x: -800,
-            width: 100
-        },
-        {
-            pos_x: -1000,
-            width: 100
-        },
-        {
-            pos_x: -1800,
-            width: 100
-        },
-        {
-            pos_x: -2900,
-            width: 100
-        },
-        {
-            pos_x: -3400,
-            width: 100
-        },
-        {
-            pos_x: -4900,
-            width: 100
-        },
-        {
-            pos_x: 100,
-            width: 100
-        },
-        {
-            pos_x: 500,
-            width: 100
-        },
-        {
-            pos_x: 800,
-            width: 100
-        },
-        {
-            pos_x: 1000,
-            width: 100
-        },
-        {
-            pos_x: 1800,
-            width: 100
-        },
-        {
-            pos_x: 1500,
-            width: 100
-        },
-        {
-            pos_x: 2000,
-            width: 100
-        },
-        {
-            pos_x: 2500,
-            width: 100
-        },
-        {
-            pos_x: 3400,
-            width: 100
-        }
-    ];
-    
-    collectables = [
-        {
-            pos_x: -350,
-            pos_y: 0,
-            size: 50,
-            primary_colour: [115, 50, 12],
-            secondary_colour: [133, 82, 0]
-        },
-        {
-            pos_x: -800,
-            pos_y: 0,
-            size: 50,
-            primary_colour: [115, 50, 12],
-            secondary_colour: [133, 82, 0]
-        },
-        {
-            pos_x: -1000,
-            pos_y: 0,
-            size: 50,
-            primary_colour: [115, 50, 12],
-            secondary_colour: [133, 82, 0]
-        },
-        {
-            pos_x: -3000,
-            pos_y: 0,
-            size: 50,
-            primary_colour: [115, 50, 12],
-            secondary_colour: [133, 82, 0]
-        },
-        {
-            pos_x: -4100,
-            pos_y: 0,
-            size: 50,
-            primary_colour: [115, 50, 12],
-            secondary_colour: [133, 82, 0]
-        },
-        {
-            pos_x: -5200,
-            pos_y: 0,
-            size: 50,
-            primary_colour: [115, 50, 12],
-            secondary_colour: [133, 82, 0]
-        },
-        {
-            pos_x: 200,
-            pos_y: 0,
-            size: 50,
-            primary_colour: [115, 50, 12],
-            secondary_colour: [133, 82, 0]
-        },
-        {
-            pos_x: 1100,
-            pos_y: 0,
-            size: 50,
-            primary_colour: [115, 50, 12],
-            secondary_colour: [133, 82, 0]
-        },
-        {
-            pos_x: 3000,
-            pos_y: 0,
-            size: 50,
-            primary_colour: [115, 50, 12],
-            secondary_colour: [133, 82, 0]
-        },
-        {
-            pos_x: 3500,
-            pos_y: 0,
-            size: 50,
-            primary_colour: [115, 50, 12],
-            secondary_colour: [133, 82, 0]
-        }
-    ];
+    startGame();
 }
 
 function draw()
@@ -212,9 +70,6 @@ function draw()
 	noStroke();
 	fill(0,155,0);
 	rect(0, floorPos_y, width, height/4); // draw some green ground
-    
-    // Check if game is over
-    checkGameState();
 
     push(); // Allows for movement throughout the scene
     translate(scrollPos, 0);
@@ -227,6 +82,9 @@ function draw()
 
 	// Draw trees
     drawTrees();
+
+    //Draw flagpole
+    renderFlagpole();
 
 	// Draw canyons
     for(var n = 0; n < canyons.length; n++)
@@ -246,10 +104,58 @@ function draw()
         }
     }
 
+    // Draw enemies
+    drawSpikes();
+
+    for(var s = 0; s < spikes_x.length; s++){
+        spikes[s].checkSpike();
+    }
+
     pop(); // Supports the movement throughout the scene
     
+    // Draw current lives
+    fill(255);
+    strokeWeight(3);
+    stroke(0);
+    textSize(15);
+    text("Your current lives:", 20, 40);
+
+    noStroke();
+    fill(150, 0, 0);
+    for(var i = 0; i < lives; i++)
+    {
+        triangle(
+                150 + (i*50), 20,
+                170 + (i*50), 50,
+                190 + (i*50), 20
+            );
+    }
+
+    getCurrentScore();
+    strokeWeight(1);
+    
+    // Creates weather
+    createWeather();
+
 	// Draw game character
 	drawGameChar();
+
+    if(!flagpole.isReached)
+    {
+        checkFlagpole();
+    }
+
+    if(lives < 1)
+    {
+        document.getElementById("GameOverText").style.display = "block";
+        return;
+    }
+    if(flagpole.isReached)
+    {
+        backgroundSound.stop();
+        document.getElementById("GameWon").style.display = "block";
+        return;
+    }
 
 	// Logic to make the game character move or the background scroll
 	if(isLeft)
@@ -278,45 +184,62 @@ function draw()
 
 	// Update real position of gameChar for collision detection
 	gameChar_world_x = gameChar_x - scrollPos;
+
+    // Check if character is below ground
+    if(gameChar_y > floorPos_y & lives > 0)
+    {
+        startGame();
+    }
 }
+
+
+// ---------------------
+// Key control functions
+// ---------------------
 
 function keyPressed()
 {
+    console.log(keyCode)
     // A key
-    if(keyCode == 65)
+    if(keyCode == 65 || keyCode == 37)
     {
         isLeft = true; // Moves left
     }
     
     // D key
-    if(keyCode == 68)
+    if(keyCode == 68 || keyCode == 39)
     {
         isRight = true; // Moves right
     }
     
     // W key or Spacebar
-    if((keyCode == 87 || keyCode == 32) && gameChar_y == floorPos_y)
+    if((keyCode == 87 || keyCode == 38) && gameChar_y == floorPos_y)
     {
         gameChar_y -= 120; // Jumps
         isFalling = true;
+        jumpSound.play();
     }
 }
 
 function keyReleased()
 {    
     // A key
-    if(keyCode == 65)
+    if(keyCode == 65 || keyCode == 37)
     {
         isLeft = false; // Stops moving left
     }
     
     // D key
-    if(keyCode == 68)
+    if(keyCode == 68 || keyCode == 39)
     {
         isRight = false; // Stops moving right
     }
 }
 
+
+// ------------------------------
+// Game character render function
+// ------------------------------
 function drawGameChar()
 {
 	// draw game character
@@ -492,7 +415,9 @@ function drawGameChar()
 
 }
 
-// draw cloud objects
+// ---------------------------
+// Background render functions
+// ---------------------------
 function drawClouds()
 {
     for(var j = 0; j < clouds.length; j++)
@@ -502,7 +427,6 @@ function drawClouds()
     }
 }
 
-// draw mountains objects
 function drawMountains()
 {
     for(var k = 0; k < mountains.length; k++)
@@ -512,7 +436,6 @@ function drawMountains()
     }
 }
 
-// draw trees objects
 function drawTrees()
 {
     for(var i = 0; i < trees_x.length; i++)
@@ -522,7 +445,16 @@ function drawTrees()
     }
 }
 
-// draw canyon objects
+function drawSpikes(){
+    for(var e = 0; e < spikes_x.length; e++){
+        new Spike(spikes_x[e]);
+    }
+}
+
+
+// ---------------------------------
+// Canyon render and check functions
+// ---------------------------------
 function drawCanyon(t_canyon)
 {
     // Draws canyons
@@ -553,6 +485,10 @@ function checkCanyon(t_canyon)
     }
 }
 
+// ----------------------------------
+// Collectable items render and check functions
+// ----------------------------------
+
 // draw collectable objects
 function drawCollectable(t_collectable)
 {
@@ -568,39 +504,416 @@ function checkCollectable(t_collectable)
     if(distance <= 65)
     {
         t_collectable.isFound = true;
+        scoreUpSound.play();
     }
 }
 
 function getCurrentScore()
 {
-    gameCharScore = 0;
+    game_score = 0;
     for(var i = 0; i < collectables.length; i++)
     {
         if(collectables[i].isFound)
         {
-            gameCharScore++;
+            game_score++;
         }
     }
     
-    document.getElementById("score").innerHTML = gameCharScore;
+    fill(255);
+    stroke(0);
+    textSize(15);
+    text('Your current score: ' + game_score, 20, 80);
 }
 
-// Ask to click reload when game is over
-function checkGameState()
+function renderFlagpole()
 {
-    if(isGameOver)
+    if(flagpole.isReached)
     {
-        document.getElementById("GameOverText").style.display = "block";
+        noStroke();
+        fill(40, 150, 10);
+
+        rect(flagpole.x_pos,
+            floorPos_y - flagpole.size,
+            25,
+            flagpole.size);
+
+        fill(60, 200, 150);
+        triangle(flagpole.x_pos,
+                floorPos_y - flagpole.size,
+                flagpole.x_pos + 25,
+                floorPos_y - (flagpole.size - (flagpole.size / 3)),
+                flagpole.x_pos + 175,
+                floorPos_y - (flagpole.size - (flagpole.size / 5)));
     }
     else
     {
-        // Gets current score based on how many collectables have been picked up
-        getCurrentScore();
+        noStroke();
+        fill(230, 20, 10);
+
+        rect(flagpole.x_pos,
+            floorPos_y - flagpole.size,
+            25,
+            flagpole.size);
+
+        fill(255);
+        triangle(flagpole.x_pos,
+                floorPos_y - flagpole.size,
+                flagpole.x_pos + 25,
+                floorPos_y - (flagpole.size - (flagpole.size / 3)),
+                flagpole.x_pos + 175,
+                floorPos_y - (flagpole.size - (flagpole.size / 5)));
+    }
+}
+
+function checkFlagpole()
+{
+    if(abs(gameChar_world_x - flagpole.x_pos) <= 50)
+    {
+        flagpole.isReached = true;
+        gameWonSound.play();
+    }
+}
+
+function createWeather()
+{
+    strokeWeight(3);
+    text("Current temperature:", 20, 120);
+    
+    switch(weather)
+    {
+        case 0:
+            // Normal weather
+            temperature = 40 + "°";
+            text(temperature, 170, 120);
+
+            fill(250, 232, 72);
+            noStroke();
+
+            ellipse(900 + scrollPos, 50, 80);
+            break;
+        case 1:
+            // Rain
+            createRain();
+            break;
+        case 2:
+            // Snow
+            createSnow();
+            break;
+    }
+
+    strokeWeight(1);
+}
+
+function createRain()
+{
+    temperature = 10 + "°";
+    text(temperature, 170, 120);
+
+    for(var i = rain.length-1; i >= 0; i--)
+    {
+        rain[i].draw();
+        rain[i].move();
+
+        if(rain[i].y >= floorPos_y - rain[i].height)
+        {
+            rain.splice(i, 1);
+
+            rain.push(
+                new Rain(
+                    random(0, width),
+                    -25
+                )
+            );
+        }
+    }
+}
+
+function createSnow()
+{
+    temperature = -5 + "°";
+    text(temperature, 170, 120);
+
+    for(var i = snow.length-1; i >= 0; i--)
+    {
+        snow[i].draw();
+        snow[i].move();
+
+        if(snow[i].y >= floorPos_y - snow[i].width/2)
+        {
+            snow.splice(i, 1);
+
+            snow.push(
+                new Snow(
+                    random(10, 20),
+                    random(0, width),
+                    -10
+                )
+            );
+        }
+    }
+}
+
+function startGame()
+{
+    trees_x = [];
+    clouds = [];
+    mountains = [];
+    rain = [];
+    snow = [];
+
+    gameChar_x = width/2;
+    gameChar_y = floorPos_y;
+    flagpole = {
+        x_pos: -5000,
+        isReached: false,
+        size: 300
+    };
+    
+    // Variable to control the background scrolling
+    scrollPos = 0;
+
+    // store position of the character needed for collision detection
+    gameChar_world_x = gameChar_x - scrollPos;
+
+    // Boolean variables to control the movement of the game character
+    isLeft = false;
+    isRight = false;
+    isFalling = false;
+    isPlummeting = false;
+
+    // Initialise arrays of scenery objects
+    for(var g = 0; g < 40; g++)
+    {
+        trees_x.push(random(-5000, 5000));
+    }
+
+    for(var g = 0; g < 30; g++)
+    {
+        clouds.push(
+            {
+                pos_x: random(-5000, 5000)
+            }
+        );
+    }
+    
+    // offset based on the center of the x axis
+    for(var g = 0; g < 25; g++)
+    {
+        mountains.push(
+            {
+                pos_x_offset: random(-4000, 3000)
+            }
+        );
+    }
+
+    // Rain
+    for(var i = 0; i < 50; i++)
+    {
+        rain.push(new Rain(random(0, width), random(0, height)));
+    }
+    // Snow
+    for(var i = 0; i < 50; i++)
+    {
+        snow.push(new Snow(random(10, 20), random(0, width), random(0, height)));
+    }
+    
+    // The remaining are fixed as it could influence gameplay
+    spikes_x = [-4900, -3500, -3000, -2500, -2000, -1850, -1000, 0, 770, 1500, 3000, 4000, 4500];
+
+    canyons = [
+        {
+            pos_x: -500,
+            width: 100
+        },
+        {
+            pos_x: -800,
+            width: 100
+        },
+        {
+            pos_x: -1000,
+            width: 100
+        },
+        {
+            pos_x: -1800,
+            width: 100
+        },
+        {
+            pos_x: -2900,
+            width: 100
+        },
+        {
+            pos_x: -3400,
+            width: 100
+        },
+        {
+            pos_x: -4900,
+            width: 100
+        },
+        {
+            pos_x: 100,
+            width: 100
+        },
+        {
+            pos_x: 500,
+            width: 100
+        },
+        {
+            pos_x: 800,
+            width: 100
+        },
+        {
+            pos_x: 1000,
+            width: 100
+        },
+        {
+            pos_x: 1800,
+            width: 100
+        },
+        {
+            pos_x: 1500,
+            width: 100
+        },
+        {
+            pos_x: 2000,
+            width: 100
+        },
+        {
+            pos_x: 2500,
+            width: 100
+        },
+        {
+            pos_x: 3400,
+            width: 100
+        }
+    ];
+    
+    collectables = [
+        {
+            pos_x: -350,
+            pos_y: 0,
+            size: 50,
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
+        },
+        {
+            pos_x: -800,
+            pos_y: 0,
+            size: 50,
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
+        },
+        {
+            pos_x: -1000,
+            pos_y: 0,
+            size: 50,
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
+        },
+        {
+            pos_x: -3000,
+            pos_y: 0,
+            size: 50,
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
+        },
+        {
+            pos_x: -4100,
+            pos_y: 0,
+            size: 50,
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
+        },
+        {
+            pos_x: -5200,
+            pos_y: 0,
+            size: 50,
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
+        },
+        {
+            pos_x: 200,
+            pos_y: 0,
+            size: 50,
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
+        },
+        {
+            pos_x: 1100,
+            pos_y: 0,
+            size: 50,
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
+        },
+        {
+            pos_x: 3000,
+            pos_y: 0,
+            size: 50,
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
+        },
+        {
+            pos_x: 3500,
+            pos_y: 0,
+            size: 50,
+            primary_colour: [115, 50, 12],
+            secondary_colour: [133, 82, 0]
+        }
+    ];
+
+    lives--;
+    
+    if(lives < 3){
+        gameOverSound.play();
+    }
+
+    if(lives <= 0){
+        backgroundSound.rate(0.6);
+    }
+}
+
+// Class that generates enemies
+class Spike
+{
+    constructor(x)
+    {
+        spikes.push(this);
+        this.x = x;
+        this.buildSpike();
+    }
+
+    buildSpike()
+    {
+        fill(255, 0, 0);
+        push();
+        translate(this.x, floorPos_y);
+
+        triangle(-20, -25,
+                -10, 0,
+                -30, 0);
+        triangle(0, -25,
+                -10, 0,
+                10, 0);
+        triangle(20, -25,
+                10, 0,
+                30, 0);
+
+        pop();
+    }
+
+    checkSpike()
+    {
+        if(abs(gameChar_world_x - this.x) <= 45
+            &&
+            gameChar_y > floorPos_y - 25)
+        {
+            startGame();
+        }
     }
 }
 
 // Class that generates Clouds
-class Cloud{
+class Cloud
+{
     constructor(offset)
     {
         this.buildCloud(offset);
@@ -625,7 +938,8 @@ class Cloud{
 }
 
 // Class that generates Mountains
-class Mountain{
+class Mountain
+{
     constructor(offset)
     {
         this.buildMountain(offset);
@@ -645,7 +959,8 @@ class Mountain{
 }
 
 // Class that generates Trees
-class Tree{
+class Tree
+{
     constructor(trees_x, floorPos_y)
     {
         this.buildTree(trees_x, floorPos_y);
@@ -679,7 +994,8 @@ class Tree{
 }
 
 // Class that generates Canyons
-class Canyon{
+class Canyon
+{
     constructor(pos_x, width)
     {
         this.buildCanyon(pos_x, width);
@@ -710,7 +1026,8 @@ class Canyon{
 }
 
 // Class that generates Collectables
-class Collectable{
+class Collectable
+{
     constructor(t_collectable)
     {
         this.buildCollectable(t_collectable);
@@ -789,5 +1106,50 @@ class Collectable{
         vertex(t_collectable.pos_x + 505, t_collectable.pos_y + 383);
         vertex(t_collectable.pos_x + 506, t_collectable.pos_y + 382);
         endShape();
+    }
+}
+
+function Rain(x, y)
+{
+    this.height = 25;
+    this.x = x;
+    this.y = y;
+
+    this.draw = function()
+    {
+        noStroke();
+        fill(50, 100, 255, 100);
+
+        push();
+        translate(this.x, this.y);
+
+        triangle(0, this.height,
+                -3, 0,
+                3, 0);
+
+        pop();
+    }
+    this.move = function()
+    {
+        this.y += 4;
+    }
+}
+
+function Snow(width, x, y)
+{
+    this.width = width;
+    this.x = x;
+    this.y = y;
+
+    this.draw = function()
+    {
+        noStroke();
+        fill(255, 255, 255, 200);
+
+        ellipse(this.x, this.y, this.width);
+    }
+    this.move = function()
+    {
+        this.y += 2;
     }
 }

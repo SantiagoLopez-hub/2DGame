@@ -7,6 +7,8 @@ var isLeft,
     isFalling,
     isPlummeting;
 
+var collectable,
+    canyon;
 
 function setup()
 {
@@ -19,6 +21,20 @@ function setup()
     isRight = false;
     isFalling = false;
     isPlummeting = false;
+    
+    canyon = {
+        x_pos: 100,
+        width: 100
+    };
+    
+    collectable = {
+        x_pos: 300,
+        y_pos: 0,
+        size: 50,
+        primaryColour: [115, 50, 12],
+        secondaryColour: [133, 82, 0],
+        isFound: false
+    };
 }
 
 function draw()
@@ -28,6 +44,111 @@ function draw()
 	noStroke();
 	fill(0,155,0);
 	rect(0, floorPos_y, width, height - floorPos_y); //draw some green ground
+    
+    if(gameChar_x >= (canyon.x_pos + 70) && gameChar_x <= (canyon.x_pos + 70 + canyon.width)
+       && 
+       gameChar_y >= floorPos_y){
+        isPlummeting = true;
+    }
+    else{
+        isPlummeting = false;
+    }
+    
+    if(isPlummeting){
+        gameChar_y += 5;
+    }
+   
+    //Canyon
+    fill(50, 10, 0);
+    rect(canyon.x_pos + 70, 432, canyon.width, 144);
+    
+    beginShape(); // Water effect
+    fill(48, 140, 161);
+    vertex(canyon.x_pos + 170, 460);
+    vertex(canyon.x_pos + 120, 470);
+    vertex(canyon.x_pos + 140, 485);
+    vertex(canyon.x_pos + 70, 520);
+    
+    vertex(canyon.x_pos + 70, 576);
+    vertex(canyon.x_pos + 130, 576);
+    
+    vertex(canyon.x_pos + 170, 510);
+    vertex(canyon.x_pos + 170, 485);
+    vertex(canyon.x_pos + 150, 475);
+    vertex(canyon.x_pos + 150, 475);
+    vertex(canyon.x_pos + 170, 470);
+    endShape(CLOSE);
+
+    
+    if(dist(gameChar_x, gameChar_y, collectable.x_pos + 500, collectable.y_pos + 400) <= 65){
+        collectable.isFound = true;
+    }
+    
+    if(!collectable.isFound){
+        //Bear
+        //Outlining bear structure for ease of visualisation
+        stroke(0);
+
+        //Arms
+        fill(115, 50, 12);
+
+        push(); //Left arm
+        translate(collectable.x_pos + 525, collectable.y_pos + 390);
+        rotate(0.5);
+        ellipse(0, 0, 35, 20);
+        pop();
+
+        push(); //Right arm
+        translate(collectable.x_pos + 475, collectable.y_pos + 390);
+        rotate(-0.5);
+        ellipse(0, 0, 35, 20);
+        pop();
+
+        //Body
+        fill(115, 50, 12);
+        ellipse(collectable.x_pos + 500,
+                collectable.y_pos + 400,
+                collectable.size - (collectable.size / 5),
+                collectable.size);
+
+        //Legs
+        fill(collectable.secondaryColour);
+        //Left leg
+        ellipse(collectable.x_pos + 485, collectable.y_pos + 410, 20, 27);
+        //Right leg
+        ellipse(collectable.x_pos + 515, collectable.y_pos + 410, 20, 27);
+
+        //Head
+        ellipse(collectable.x_pos + 485, collectable.y_pos + 360, 17); //Left ear
+        ellipse(collectable.x_pos + 515, collectable.y_pos + 360, 17); //Right ear
+
+        fill(200);
+        ellipse(collectable.x_pos + 485, collectable.y_pos + 360, 10); //Left ear inside
+        ellipse(collectable.x_pos + 515, collectable.y_pos + 360, 10); //Right ear inside
+
+        fill(collectable.primaryColour);
+        ellipse(collectable.x_pos + 500, collectable.y_pos + 370, 36); //Face
+
+        fill(collectable.secondaryColour);
+        ellipse(collectable.x_pos + 500, collectable.y_pos + 378, 23, 18); //Snout
+
+        fill(0);
+        ellipse(collectable.x_pos + 493, collectable.y_pos + 365, 5); //Left eye
+        ellipse(collectable.x_pos + 507, collectable.y_pos + 365, 5); //Right eye
+        triangle(collectable.x_pos + 500, collectable.y_pos + 379, collectable.x_pos + 504, collectable.y_pos + 375, collectable.x_pos + 496, collectable.y_pos + 375); //Nose
+        line(collectable.x_pos + 499.5, collectable.y_pos + 382, collectable.x_pos + 499.5, collectable.y_pos + 375);
+
+        beginShape();
+        noFill();
+        vertex(collectable.x_pos + 494, collectable.y_pos + 382);
+        vertex(collectable.x_pos + 496, collectable.y_pos + 383);
+        vertex(collectable.x_pos + 499, collectable.y_pos + 383);
+
+        vertex(collectable.x_pos + 502, collectable.y_pos + 383);
+        vertex(collectable.x_pos + 505, collectable.y_pos + 383);
+        vertex(collectable.x_pos + 506, collectable.y_pos + 382);
+        endShape();
+    }
 
 	//game character
 	if(isLeft && isFalling)
@@ -189,7 +310,7 @@ function draw()
         ellipse(gameChar_x + 8, gameChar_y - 49, 1, 3); // Right eye
 
 	}
-    
+
     if(isLeft && gameChar_x >= 40){
         gameChar_x -= 3;
     }
@@ -199,12 +320,11 @@ function draw()
     }
 
     if(gameChar_y < floorPos_y){
-        gameChar_y += 3;
+        gameChar_y += 4;
         isFalling = true;
     }
     else{
         isFalling = false;
-        gameChar_y = floorPos_y;
     }
 }
 

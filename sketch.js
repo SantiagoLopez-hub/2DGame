@@ -99,8 +99,45 @@ function setup()
 function draw()
 {
 	background(100, 155, 255); //fill the sky blue
+
     
-	//5. a collectable token - eg. a jewel, fruit, coins
+	noStroke();
+	fill(0,155,0);
+	rect(0, 432, 1024, 144); //draw some green ground
+
+	//1. a cloud in the sky
+
+	//2. a mountain in the distance
+    
+	//3. a tree
+
+    //Tree trunk
+    fill(84, 56, 0);
+    beginShape();
+    vertex(800, 370);
+    vertex(800, 400);
+    vertex(815, 432);
+    vertex(740, 432);
+    vertex(750, 350);
+    vertex(750, 350);
+    endShape(CLOSE);
+    
+    //Tree branches
+    fill(21, 115, 0);
+    ellipse(770, 300, 90, 80);
+    ellipse(750, 350, 90, 80);
+    ellipse(700, 300, 90, 80);
+    ellipse(750, 250, 75, 90);
+    ellipse(800, 260, 100, 100);
+    ellipse(850, 290, 90, 70);
+    ellipse(850, 330, 100, 80);
+    ellipse(800, 350, 80, 60);
+    
+
+	//4. a canyon
+    
+    
+	//5. a bear
     
     //Outlining bear structure for ease of visualisation
     stroke(0);

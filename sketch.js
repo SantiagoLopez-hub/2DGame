@@ -1,308 +1,368 @@
-var bear = {
-    bodyPosition_x: 500,
-    bodyPosition_y: 400,
-    bodyWidth: 40,
-    bodyHeight: 50,
-    primaryColour: [115, 50, 12],
-    secondaryColour: [133, 82, 0],
-    head: {
-        facePosition_x: 500,
-        facePosition_y: 370,
-        facePosition_width: 36,
-        facePosition_height: 36,
-        snoutPosition_x: 500,
-        snoutPosition_y: 378,
-        snoutPosition_width: 23,
-        snoutPosition_height: 18,
-        nose: [500, 379, 504, 375, 496, 375],
-        eyes: {
-            left: {
-                position_x: 493,
-                position_y: 365,
-                width: 5,
-                height: 5
-            },
-            right: {
-                position_x: 507,
-                position_y: 365,
-                width: 5,
-                height: 5
-            }
-        },
-        ears: {
-            left: {
-                position_x: 485,
-                position_y: 360,
-                width: 17,
-                height: 17,
-                inside:{
-                    position_x: 485,
-                    position_y: 360,
-                    width: 10,
-                    height: 10
-                }
-            },
-            right: {
-                position_x: 515,
-                position_y: 360,
-                width: 17,
-                height: 17,
-                inside:{
-                    position_x: 515,
-                    position_y: 360,
-                    width: 10,
-                    height: 10
-                }
-            }
-        }
-    },
-    arms: {
-        left: {
-            position_x: 20,
-            position_y: 109.5,
-            width: 15,
-            height: 30
-        },
-        right: {
-            position_x: -42,
-            position_y: 97,
-            width: 15,
-            height: 29
-        }
-    },
-    legs: {
-        left: {
-            position_x: 485,
-            position_y: 410,
-            width: 20,
-            height: 27
-        },
-        right: {
-            position_x: 515,
-            position_y: 410,
-            width: 20,
-            height: 27
-        }
-    }
-};
+var gameChar_x;
+var gameChar_y;
+var floorPos_y;
+
+var isLeft,
+    isRight,
+    isFalling,
+    isPlummeting;
+
+var collectable,
+    canyon;
 
 function setup()
 {
 	createCanvas(1024, 576);
-
-    for (var key in bear) {
-        console.log(bear); // whole object
-        console.log(bear[key]); // only values
-    }
+	floorPos_y = height * 3/4;
+	gameChar_x = width/2;
+	gameChar_y = floorPos_y;
+    
+    isLeft = false;
+    isRight = false;
+    isFalling = false;
+    isPlummeting = false;
+    
+    canyon = {
+        x_pos: 100,
+        width: 100
+    };
+    
+    collectable = {
+        x_pos: 300,
+        y_pos: 0,
+        size: 50,
+        primaryColour: [115, 50, 12],
+        secondaryColour: [133, 82, 0],
+        isFound: false
+    };
 }
 
 function draw()
 {
-	background(100, 155, 255); //fill the sky blue
+	background(100,155,255); //fill the sky blue
 
-    
 	noStroke();
 	fill(0,155,0);
-	rect(0, 432, 1024, 144); //draw some green ground
-
-	//1. a cloud in the sky
-    var cloud1 = new Cloud(0);
-    var cloud2 = new Cloud(200);
-    var cloud3 = new Cloud(500);
-    var cloud4 = new Cloud(560);
+	rect(0, floorPos_y, width, height - floorPos_y); //draw some green ground
     
-
-	//2. a mountain in the distance
-    var mountain3 = new Mountain(-80);
-    var mountain1 = new Mountain(0);
-    var mountain2 = new Mountain(130);
-
-
-	//3. a tree
-
-    //Tree trunk
-    fill(84, 56, 0);
-    beginShape();
-    vertex(800, 370);
-    vertex(800, 400);
-    vertex(815, 432);
-    vertex(740, 432);
-    vertex(750, 350);
-    vertex(750, 350);
-    endShape(CLOSE);
+    if(gameChar_x >= (canyon.x_pos + 70) && gameChar_x <= (canyon.x_pos + 70 + canyon.width)
+       && 
+       gameChar_y >= floorPos_y){
+        isPlummeting = true;
+    }
+    else{
+        isPlummeting = false;
+    }
     
-    //Tree branches
-    fill(21, 115, 0);
-    ellipse(770, 300, 90, 80);
-    ellipse(750, 350, 90, 80);
-    ellipse(700, 300, 90, 80);
-    ellipse(750, 250, 75, 90);
-    ellipse(800, 260, 100, 100);
-    ellipse(850, 290, 90, 70);
-    ellipse(850, 330, 100, 80);
-    ellipse(800, 350, 80, 60);
-    
-
-	//4. a canyon
-    
+    if(isPlummeting){
+        gameChar_y += 5;
+    }
+   
+    //Canyon
     fill(50, 10, 0);
-    rect(70, 432, 100, 144);
+    rect(canyon.x_pos + 70, 432, canyon.width, 144);
     
-    // Water effect
-    beginShape();
+    beginShape(); // Water effect
     fill(48, 140, 161);
-    vertex(170, 460);
-    vertex(120, 470);
-    vertex(140, 485);
-    vertex(70, 520);
+    vertex(canyon.x_pos + 170, 460);
+    vertex(canyon.x_pos + 120, 470);
+    vertex(canyon.x_pos + 140, 485);
+    vertex(canyon.x_pos + 70, 520);
     
-    vertex(70, 576);
-    vertex(130, 576);
+    vertex(canyon.x_pos + 70, 576);
+    vertex(canyon.x_pos + 130, 576);
     
-    vertex(170, 510);
-    vertex(170, 485);
-    vertex(150, 475);
-    vertex(150, 475);
-    vertex(170, 470);
+    vertex(canyon.x_pos + 170, 510);
+    vertex(canyon.x_pos + 170, 485);
+    vertex(canyon.x_pos + 150, 475);
+    vertex(canyon.x_pos + 150, 475);
+    vertex(canyon.x_pos + 170, 470);
     endShape(CLOSE);
+
     
+    if(dist(gameChar_x, gameChar_y, collectable.x_pos + 500, collectable.y_pos + 400) <= 65){
+        collectable.isFound = true;
+    }
     
-	//5. a bear
+    if(!collectable.isFound){
+        //Bear
+        //Outlining bear structure for ease of visualisation
+        stroke(0);
+
+        //Arms
+        fill(115, 50, 12);
+
+        push(); //Left arm
+        translate(collectable.x_pos + 525, collectable.y_pos + 390);
+        rotate(0.5);
+        ellipse(0, 0, 35, 20);
+        pop();
+
+        push(); //Right arm
+        translate(collectable.x_pos + 475, collectable.y_pos + 390);
+        rotate(-0.5);
+        ellipse(0, 0, 35, 20);
+        pop();
+
+        //Body
+        fill(115, 50, 12);
+        ellipse(collectable.x_pos + 500,
+                collectable.y_pos + 400,
+                collectable.size - (collectable.size / 5),
+                collectable.size);
+
+        //Legs
+        fill(collectable.secondaryColour);
+        //Left leg
+        ellipse(collectable.x_pos + 485, collectable.y_pos + 410, 20, 27);
+        //Right leg
+        ellipse(collectable.x_pos + 515, collectable.y_pos + 410, 20, 27);
+
+        //Head
+        ellipse(collectable.x_pos + 485, collectable.y_pos + 360, 17); //Left ear
+        ellipse(collectable.x_pos + 515, collectable.y_pos + 360, 17); //Right ear
+
+        fill(200);
+        ellipse(collectable.x_pos + 485, collectable.y_pos + 360, 10); //Left ear inside
+        ellipse(collectable.x_pos + 515, collectable.y_pos + 360, 10); //Right ear inside
+
+        fill(collectable.primaryColour);
+        ellipse(collectable.x_pos + 500, collectable.y_pos + 370, 36); //Face
+
+        fill(collectable.secondaryColour);
+        ellipse(collectable.x_pos + 500, collectable.y_pos + 378, 23, 18); //Snout
+
+        fill(0);
+        ellipse(collectable.x_pos + 493, collectable.y_pos + 365, 5); //Left eye
+        ellipse(collectable.x_pos + 507, collectable.y_pos + 365, 5); //Right eye
+        triangle(collectable.x_pos + 500, collectable.y_pos + 379, collectable.x_pos + 504, collectable.y_pos + 375, collectable.x_pos + 496, collectable.y_pos + 375); //Nose
+        line(collectable.x_pos + 499.5, collectable.y_pos + 382, collectable.x_pos + 499.5, collectable.y_pos + 375);
+
+        beginShape();
+        noFill();
+        vertex(collectable.x_pos + 494, collectable.y_pos + 382);
+        vertex(collectable.x_pos + 496, collectable.y_pos + 383);
+        vertex(collectable.x_pos + 499, collectable.y_pos + 383);
+
+        vertex(collectable.x_pos + 502, collectable.y_pos + 383);
+        vertex(collectable.x_pos + 505, collectable.y_pos + 383);
+        vertex(collectable.x_pos + 506, collectable.y_pos + 382);
+        endShape();
+    }
+
+	//game character
+	if(isLeft && isFalling)
+	{
+		// jumping-left code
+        fill(232, 232, 232);
+        stroke(0);
+        rect(gameChar_x - 15, gameChar_y - 57, 30, 50, 3); // Body
+
+        rect(gameChar_x - 13, gameChar_y - 7, 7, 3); // Left leg
+        rect(gameChar_x + 6, gameChar_y - 7, 7, 5); // Right leg
+
+        rect(gameChar_x - 20, gameChar_y - 32, 5, -10); // Left arm
+        rect(gameChar_x - 25, gameChar_y - 42, 5, -18); // Left arm
+
+        rect(gameChar_x + 15, gameChar_y - 37, 5, -5); // Right arm
+        rect(gameChar_x + 10, gameChar_y - 42, 5, -18); // Right arm
+
+        fill(175, 175, 175);
+        ellipse(gameChar_x - 2, gameChar_y - 42, 5, 7); // Mouth
+        fill(0);
+        ellipse(gameChar_x - 11, gameChar_y - 49, 2, 3); // Left eye
+        ellipse(gameChar_x + 5, gameChar_y - 49, 2, 3); // Right eye
+
+        fill(179, 167, 0);
+        ellipse(gameChar_x, gameChar_y - 67, 25, 5); // Outter Halo
+        fill(255);
+        ellipse(gameChar_x, gameChar_y - 67, 20, 5); // Inner Halo
+
+        noStroke();
+        fill(255);
+        ellipse(gameChar_x - 10, gameChar_y - 22, 3, 15); // Reflection
+
+	}
+	else if(isRight && isFalling)
+	{
+		// jumping-right code
+        fill(232, 232, 232);
+        stroke(0);
+        rect(gameChar_x - 15, gameChar_y - 57, 30, 50, 3); // Body
+
+        rect(gameChar_x - 13, gameChar_y - 7, 7, 5); // Left leg
+        rect(gameChar_x + 6, gameChar_y - 7, 7, 3); // Right leg
+
+        rect(gameChar_x - 20, gameChar_y - 37, 5, -5); // Left arm
+        rect(gameChar_x - 15, gameChar_y - 42, 5, -18); // Left arm
+
+        rect(gameChar_x + 15, gameChar_y - 32, 5, -10); // Right arm
+        rect(gameChar_x + 20, gameChar_y - 42, 5, -18); // Right arm
+
+        fill(175, 175, 175);
+        ellipse(gameChar_x + 2, gameChar_y - 42, 5, 7); // Mouth
+        fill(0);
+        ellipse(gameChar_x - 5, gameChar_y - 49, 2, 3); // Left eye
+        ellipse(gameChar_x + 11, gameChar_y - 49, 2, 3); // Right eye
+
+        fill(179, 167, 0);
+        ellipse(gameChar_x, gameChar_y - 67, 25, 5); // Outter Halo
+        fill(255);
+        ellipse(gameChar_x, gameChar_y - 67, 20, 5); // Inner Halo
+
+        noStroke();
+        fill(255);
+        ellipse(gameChar_x + 10, gameChar_y - 22, 3, 15); // Reflection
+
+	}
+	else if(isLeft)
+	{
+		// walking left code
+        fill(232, 232, 232);
+        stroke(0);
+        rect(gameChar_x - 15, gameChar_y - 57, 30, 50, 3); // Body
+
+        rect(gameChar_x - 13, gameChar_y - 7, 7, 3); // Left leg
+        rect(gameChar_x + 6, gameChar_y - 7, 7, 5); // Right leg
+
+        rect(gameChar_x - 20, gameChar_y - 32, 5, 10); // Left arm
+        rect(gameChar_x - 25, gameChar_y - 22, 5, 10); // Left arm
+
+        rect(gameChar_x + 15, gameChar_y - 32, 5, 5); // Right arm
+        rect(gameChar_x + 10, gameChar_y - 27, 5, 5); // Right arm
+        rect(gameChar_x + 5, gameChar_y - 22, 5, 10); // Right arm
+
+        line(gameChar_x - 5, gameChar_y - 42, gameChar_x + 2, gameChar_y - 42); // Mouth
+        ellipse(gameChar_x - 11, gameChar_y - 49, 1, 3); // Left eye
+        ellipse(gameChar_x + 5, gameChar_y - 49, 1, 3); // Right eye
+
+        noStroke();
+        fill(255);
+        ellipse(gameChar_x - 10, gameChar_y - 22, 3, 15); // Reflection
+
+	}
+	else if(isRight)
+	{
+		// walking right code
+        fill(232, 232, 232);
+        stroke(0);
+        rect(gameChar_x - 15, gameChar_y - 57, 30, 50, 3); // Body
+
+        rect(gameChar_x - 13, gameChar_y - 7, 7, 5); // Left leg
+        rect(gameChar_x + 6, gameChar_y - 7, 7, 3); // Right leg
+
+        rect(gameChar_x - 20, gameChar_y - 32, 5, 10); // Left arm
+        rect(gameChar_x - 15, gameChar_y - 22, 5, 5); // Left arm
+        rect(gameChar_x - 10, gameChar_y - 17, 5, 5); // Left arm
+
+        rect(gameChar_x + 15, gameChar_y - 32, 5, 10); // Right arm
+        rect(gameChar_x + 20, gameChar_y - 22, 5, 10); // Right arm
+
+        line(gameChar_x - 2, gameChar_y - 42, gameChar_x + 5, gameChar_y - 42); // Mouth
+        ellipse(gameChar_x - 5, gameChar_y - 49, 1, 3); // Left eye
+        ellipse(gameChar_x + 11, gameChar_y - 49, 1, 3); // Right eye
+
+        noStroke();
+        fill(255);
+        ellipse(gameChar_x + 10, gameChar_y - 22, 3, 15); // Reflection
+
+	}
+	else if(isFalling || isPlummeting)
+	{
+		// jumping facing forwards code
+        fill(232, 232, 232);
+        stroke(0);
+        rect(gameChar_x - 15, gameChar_y - 57, 30, 50, 3); // Body
+
+        rect(gameChar_x - 13, gameChar_y - 7, 7, 5); // Left leg
+        rect(gameChar_x + 6, gameChar_y - 7, 7, 5); // Right leg
+
+        rect(gameChar_x - 20, gameChar_y - 32, 5, -28); // Left arm
+        rect(gameChar_x + 15, gameChar_y - 32, 5, -28); // Right arm
+
+        fill(175, 175, 175);
+        ellipse(gameChar_x, gameChar_y - 42, 5, 7); // Mouth
+        fill(0);
+        ellipse(gameChar_x - 8, gameChar_y - 49, 2, 3); // Left eye
+        ellipse(gameChar_x + 8, gameChar_y - 49, 2, 3); // Right eye
+
+        fill(179, 167, 0);
+        ellipse(gameChar_x, gameChar_y - 67, 25, 5); // Outter Halo
+        fill(255);
+        ellipse(gameChar_x, gameChar_y - 67, 20, 5); // Inner Halo
+
+	}
+	else
+	{
+		// standing front facing code
+        fill(232, 232, 232);
+        stroke(0);
+        rect(gameChar_x - 15, gameChar_y - 57, 30, 50, 3); // Body
+
+        rect(gameChar_x - 13, gameChar_y - 7, 7, 5); // Left leg
+        rect(gameChar_x + 6, gameChar_y - 7, 7, 5); // Right leg
+
+        rect(gameChar_x - 20, gameChar_y - 32, 5, 20); // Left arm
+        rect(gameChar_x + 15, gameChar_y - 32, 5, 20); // Right arm
+
+        line(gameChar_x - 5, gameChar_y - 42, gameChar_x + 5, gameChar_y - 42); // Mouth
+        ellipse(gameChar_x - 8, gameChar_y - 49, 1, 3); // Left eye
+        ellipse(gameChar_x + 8, gameChar_y - 49, 1, 3); // Right eye
+
+	}
+
+    if(isLeft && gameChar_x >= 40){
+        gameChar_x -= 3;
+    }
     
-    //Outlining bear structure for ease of visualisation
-    stroke(0);
-    
-    //Arms
-    fill(115, 50, 12);
-    push(); //Left arm
-    translate(width / 2, height / 2);
-    rotate(PI / 6.0);
-    ellipse(bear.arms.left.position_x,
-            bear.arms.left.position_y,
-            bear.arms.left.width,
-            bear.arms.left.height);
-    pop();
-    
-    push(); //Right arm
-    translate(width / 2, height / 2);
-    rotate(PI / -6.0);
-    ellipse(bear.arms.right.position_x,
-            bear.arms.right.position_y,
-            bear.arms.right.width,
-            bear.arms.right.height);
-    pop();
-    
-    //Body
-    ellipse(bear.bodyPosition_x, bear.bodyPosition_y, bear.bodyWidth, bear.bodyHeight);
-    
-    
-    //Legs
-    fill(bear.secondaryColour);
-    ellipse(bear.legs.left.position_x,
-            bear.legs.left.position_y,
-            bear.legs.left.width,
-            bear.legs.left.height); //Left leg
-    ellipse(bear.legs.right.position_x,
-            bear.legs.right.position_y,
-            bear.legs.right.width,
-            bear.legs.right.height); //Right leg
-    
-    
-    //Head
-    ellipse(bear.head.ears.left.position_x,
-            bear.head.ears.left.position_y,
-            bear.head.ears.left.width,
-            bear.head.ears.left.height); //Left ear
-    ellipse(bear.head.ears.right.position_x,
-            bear.head.ears.right.position_y,
-            bear.head.ears.right.width,
-            bear.head.ears.right.height); //Right ear
-    
-    fill(200);
-    ellipse(bear.head.ears.left.inside.position_x,
-            bear.head.ears.left.inside.position_y,
-            bear.head.ears.left.inside.width,
-            bear.head.ears.left.inside.height); //Left ear inside
-    ellipse(bear.head.ears.right.inside.position_x,
-            bear.head.ears.right.inside.position_y,
-            bear.head.ears.right.inside.width,
-            bear.head.ears.right.inside.height); //Right ear inside
-    
-    fill(bear.primaryColour);
-    ellipse(bear.head.facePosition_x,
-           bear.head.facePosition_y,
-           bear.head.facePosition_width,
-           bear.head.facePosition_height); //Face
-    
-    fill(bear.secondaryColour);
-    ellipse(bear.head.snoutPosition_x,
-           bear.head.snoutPosition_y,
-           bear.head.snoutPosition_width,
-           bear.head.snoutPosition_height); //Snout
-    
-    
-    fill(0);
-    ellipse(bear.head.eyes.left.position_x,
-           bear.head.eyes.left.position_y,
-           bear.head.eyes.left.width,
-           bear.head.eyes.left.height); //Left eye
-    ellipse(bear.head.eyes.right.position_x,
-           bear.head.eyes.right.position_y,
-           bear.head.eyes.right.width,
-           bear.head.eyes.right.height); //Right eye
-    triangle(bear.head.nose[0],
-             bear.head.nose[1],
-             bear.head.nose[2],
-             bear.head.nose[3],
-             bear.head.nose[4],
-             bear.head.nose[5]); //Nose
-    line(499.5, 382, 499.5, 375);
-    
-    beginShape();
-    noFill();
-    vertex(494, 382);
-    vertex(496, 383);
-    vertex(499, 383);
-    
-    vertex(502, 383);
-    vertex(505, 383);
-    vertex(506, 382);
-    endShape();
-    
+    if(isRight && gameChar_x <= 990){
+        gameChar_x += 3;
+    }
+
+    if(gameChar_y < floorPos_y){
+        gameChar_y += 4;
+        isFalling = true;
+    }
+    else{
+        isFalling = false;
+    }
 }
 
 
-class Cloud{
-    constructor(offset){
-        this.buildCloud(offset);
+function keyPressed()
+{
+	console.log("keyPressed: " + key);
+	console.log("keyPressed: " + keyCode);
+    
+    // A key
+    if(keyCode == 65){
+        isLeft = true;
     }
     
-    buildCloud(offset){
-        fill(255, 255, 255);
-        ellipse(100 + offset, 100, 50, 50);
-        ellipse(115 + offset, 80, 60, 50);
-        ellipse(140 + offset, 70, 50, 50);
-        ellipse(170 + offset, 65, 40, 50);
-        ellipse(210 + offset, 80, 60, 50);
-
-        ellipse(210 + offset, 100, 50, 50);
-        ellipse(200 + offset, 120, 50, 50);
-        ellipse(160 + offset, 125, 50, 50);
-        ellipse(120 + offset, 125, 50, 50);
-
-        ellipse(150 + offset, 100, 120, 50);
+    // D key
+    if(keyCode == 68){
+        isRight = true;
+    }
+    
+    // W key or Spacebar
+    if((keyCode == 87 || keyCode == 32) && gameChar_y == floorPos_y){
+        gameChar_y -= 100;
+        isFalling = true;
     }
 }
 
-class Mountain{
-    constructor(offset){
-        fill(102, 51, 0);
-        triangle(450 + offset, 432, (((450 + offset) + (600 + offset)) / 2), 100, 600 + offset, 432);
-
-        fill(133, 66, 0);
-        triangle(490 + offset, 432, (((450 + offset) + (600 + offset)) / 2), 100, 600 + offset, 432);
-
-        fill(224, 224, 224);
-        triangle(502 + offset, 200, (((450 + offset) + (600 + offset)) / 2), 100, 550 + offset, 210);
+function keyReleased()
+{
+	console.log("keyReleased: " + key);
+	console.log("keyReleased: " + keyCode);
+    
+    // A key
+    if(keyCode == 65){
+        isLeft = false;
+    }
+    
+    // D key
+    if(keyCode == 68){
+        isRight = false;
     }
 }

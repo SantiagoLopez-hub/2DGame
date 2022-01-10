@@ -106,7 +106,11 @@ function draw()
 	rect(0, 432, 1024, 144); //draw some green ground
 
 	//1. a cloud in the sky
-
+    var cloud1 = new Cloud(0);
+    var cloud2 = new Cloud(200);
+    var cloud3 = new Cloud(500);
+    var cloud4 = new Cloud(560);
+    
 
 	//2. a mountain in the distance
 
@@ -261,4 +265,27 @@ function draw()
     vertex(506, 382);
     endShape();
     
+}
+
+
+class Cloud{
+    constructor(offset){
+        this.buildCloud(offset);
+    }
+    
+    buildCloud(offset){
+        fill(255, 255, 255);
+        ellipse(100 + offset, 100, 50, 50);
+        ellipse(115 + offset, 80, 60, 50);
+        ellipse(140 + offset, 70, 50, 50);
+        ellipse(170 + offset, 65, 40, 50);
+        ellipse(210 + offset, 80, 60, 50);
+
+        ellipse(210 + offset, 100, 50, 50);
+        ellipse(200 + offset, 120, 50, 50);
+        ellipse(160 + offset, 125, 50, 50);
+        ellipse(120 + offset, 125, 50, 50);
+
+        ellipse(150 + offset, 100, 120, 50);
+    }
 }

@@ -1,282 +1,350 @@
-var bear = {
-    bodyPosition_x: 500,
-    bodyPosition_y: 400,
-    bodyWidth: 40,
-    bodyHeight: 50,
-    primaryColour: [115, 50, 12],
-    secondaryColour: [133, 82, 0],
-    head: {
-        facePosition_x: 500,
-        facePosition_y: 370,
-        facePosition_width: 36,
-        facePosition_height: 36,
-        snoutPosition_x: 500,
-        snoutPosition_y: 378,
-        snoutPosition_width: 23,
-        snoutPosition_height: 18,
-        nose: [500, 379, 504, 375, 496, 375],
-        eyes: {
-            left: {
-                position_x: 493,
-                position_y: 365,
-                width: 5,
-                height: 5
-            },
-            right: {
-                position_x: 507,
-                position_y: 365,
-                width: 5,
-                height: 5
-            }
-        },
-        ears: {
-            left: {
-                position_x: 485,
-                position_y: 360,
-                width: 17,
-                height: 17,
-                inside:{
-                    position_x: 485,
-                    position_y: 360,
-                    width: 10,
-                    height: 10
-                }
-            },
-            right: {
-                position_x: 515,
-                position_y: 360,
-                width: 17,
-                height: 17,
-                inside:{
-                    position_x: 515,
-                    position_y: 360,
-                    width: 10,
-                    height: 10
-                }
-            }
-        }
-    },
-    arms: {
-        left: {
-            position_x: 20,
-            position_y: 109.5,
-            width: 15,
-            height: 30
-        },
-        right: {
-            position_x: -42,
-            position_y: 97,
-            width: 15,
-            height: 29
-        }
-    },
-    legs: {
-        left: {
-            position_x: 485,
-            position_y: 410,
-            width: 20,
-            height: 27
-        },
-        right: {
-            position_x: 515,
-            position_y: 410,
-            width: 20,
-            height: 27
-        }
-    }
-};
+var gameChar_x;
+var gameChar_y;
+var floorPos_y;
+var isLeft;
+var isRight;
+var scrollPos;
+
+var clouds;
+var mountains;
+var trees_x;
+var canyons;
+var collectables;
 
 function setup()
 {
 	createCanvas(1024, 576);
+	floorPos_y = height * 3/4;
+	gameChar_x = width/2;
+	gameChar_y = floorPos_y;
 
-    for (var key in bear) {
-        console.log(bear); // whole object
-        console.log(bear[key]); // only values
-    }
+	isLeft = false;
+	isRight = false;
+
+	scrollPos = 0;
+
+    trees_x = [-1000, -800, -500, 80, 250, 570, 818, 1200, 2000];
+    clouds = [
+        {
+            pos_x: 23
+        },
+        {
+            pos_x: 200
+        },
+        {
+            pos_x: 700
+        },
+        {
+            pos_x: 1000
+        },
+        {
+            pos_x: 1400
+        },
+        {
+            pos_x: -500
+        },
+        {
+            pos_x: -700
+        }
+    ];
+    
+    mountains = [
+        {
+            pos_x_offset: -100
+        },
+        {
+            pos_x_offset: 380
+        },
+        {
+            pos_x_offset: 450
+        },
+        {
+            pos_x_offset: -450
+        },
+        {
+            pos_x_offset: 800
+        },
+        {
+            pos_x_offset: 1200
+        }
+    ];
+    canyons = [
+        {
+            pos_x: 100,
+            width: 100
+        },
+        {
+            pos_x: 800,
+            width: 100
+        },
+        {
+            pos_x: -500,
+            width: 100
+        },
+        {
+            pos_x: 1000,
+            width: 100
+        },
+        {
+            pos_x: 1800,
+            width: 100
+        }
+    ];
+    collectables = [
+        {
+            x_pos: 200,
+            y_pos: 0,
+            size: 50,
+            primaryColour: [115, 50, 12],
+            secondaryColour: [133, 82, 0]
+        },
+        {
+            x_pos: -350,
+            y_pos: 0,
+            size: 50,
+            primaryColour: [115, 50, 12],
+            secondaryColour: [133, 82, 0]
+        },
+        {
+            x_pos: -800,
+            y_pos: 0,
+            size: 50,
+            primaryColour: [115, 50, 12],
+            secondaryColour: [133, 82, 0]
+        },
+        {
+            x_pos: -1000,
+            y_pos: 0,
+            size: 50,
+            primaryColour: [115, 50, 12],
+            secondaryColour: [133, 82, 0]
+        },
+        {
+            x_pos: 1100,
+            y_pos: 0,
+            size: 50,
+            primaryColour: [115, 50, 12],
+            secondaryColour: [133, 82, 0]
+        }
+    ];
 }
 
 function draw()
 {
-	background(100, 155, 255); //fill the sky blue
+	background(100, 155, 255); // fill the sky blue
 
-    
 	noStroke();
-	fill(0,155,0);
-	rect(0, 432, 1024, 144); //draw some green ground
+	fill(0, 155, 0);
+	rect(0, floorPos_y, width, height/4); // draw some green ground
 
-	//1. a cloud in the sky
-    var cloud1 = new Cloud(0);
-    var cloud2 = new Cloud(200);
-    var cloud3 = new Cloud(500);
-    var cloud4 = new Cloud(560);
+    push();
+    translate(scrollPos, 0);
     
+	// Draw clouds.
+    for(var j = 0; j < clouds.length; j++){
+        new Cloud(clouds[j].pos_x);
+    }
+    
+	// Draw mountains.
+    for(var k = 0; k < mountains.length; k++){
+        new Mountain(mountains[k].pos_x_offset);
+    }
 
-	//2. a mountain in the distance
-    var mountain3 = new Mountain(-80);
-    var mountain1 = new Mountain(0);
-    var mountain2 = new Mountain(130);
+	// Draw trees.
+    for(var i = 0; i < trees_x.length; i++){
+        //Tree
+        noStroke();
+        fill(84, 56, 0);
+        beginShape();
+        vertex(trees_x[i] + 25, floorPos_y - 62);
+        vertex(trees_x[i] + 25, floorPos_y - 32);
+        vertex(trees_x[i] + 40, floorPos_y);
+        vertex(trees_x[i] - 35, floorPos_y);
+        vertex(trees_x[i] - 25, floorPos_y - 82);
+        vertex(trees_x[i] - 25, floorPos_y - 82);
+        endShape(CLOSE);
 
+        //Tree branches
+        fill(21, 115, 0);
+        ellipse(trees_x[i] - 5, floorPos_y - 132, 90, 80);
+        ellipse(trees_x[i] - 25, floorPos_y - 82, 90, 80);
+        ellipse(trees_x[i] - 75, floorPos_y - 132, 90, 80);
+        ellipse(trees_x[i] - 25, floorPos_y - 182, 75, 90);
+        ellipse(trees_x[i] + 25, floorPos_y - 172, 100, 100);
+        ellipse(trees_x[i] + 75, floorPos_y - 142, 90, 70);
+        ellipse(trees_x[i] + 75, floorPos_y - 102, 100, 80);
+        ellipse(trees_x[i] + 25, floorPos_y - 82, 80, 60);
+    }
+	// Draw canyons
+    for(var n = 0; n < canyons.length; n++){
+        //Canyon
+        fill(50, 10, 0);
+        rect(canyons[n].pos_x + 70, 432, canyons[n].width, 144);
 
-	//3. a tree
+        beginShape(); // Water effect
+        fill(48, 140, 161);
+        vertex(canyons[n].pos_x + 170, 460);
+        vertex(canyons[n].pos_x + 120, 470);
+        vertex(canyons[n].pos_x + 140, 485);
+        vertex(canyons[n].pos_x + 70, 520);
 
-    //Tree trunk
-    fill(84, 56, 0);
-    beginShape();
-    vertex(800, 370);
-    vertex(800, 400);
-    vertex(815, 432);
-    vertex(740, 432);
-    vertex(750, 350);
-    vertex(750, 350);
-    endShape(CLOSE);
-    
-    //Tree branches
-    fill(21, 115, 0);
-    ellipse(770, 300, 90, 80);
-    ellipse(750, 350, 90, 80);
-    ellipse(700, 300, 90, 80);
-    ellipse(750, 250, 75, 90);
-    ellipse(800, 260, 100, 100);
-    ellipse(850, 290, 90, 70);
-    ellipse(850, 330, 100, 80);
-    ellipse(800, 350, 80, 60);
-    
+        vertex(canyons[n].pos_x + 70, 576);
+        vertex(canyons[n].pos_x + 130, 576);
 
-	//4. a canyon
-    
-    fill(50, 10, 0);
-    rect(70, 432, 100, 144);
-    
-    // Water effect
-    beginShape();
-    fill(48, 140, 161);
-    vertex(170, 460);
-    vertex(120, 470);
-    vertex(140, 485);
-    vertex(70, 520);
-    
-    vertex(70, 576);
-    vertex(130, 576);
-    
-    vertex(170, 510);
-    vertex(170, 485);
-    vertex(150, 475);
-    vertex(150, 475);
-    vertex(170, 470);
-    endShape(CLOSE);
+        vertex(canyons[n].pos_x + 170, 510);
+        vertex(canyons[n].pos_x + 170, 485);
+        vertex(canyons[n].pos_x + 150, 475);
+        vertex(canyons[n].pos_x + 150, 475);
+        vertex(canyons[n].pos_x + 170, 470);
+        endShape(CLOSE);
+    }
     
     
-	//5. a bear
+	// Draw Bear
+    for(var a = 0; a < collectables.length; a++){
+        // Bear
+        //Outlining bear structure for ease of visualisation
+        stroke(0);
+
+        //Arms
+        fill(115, 50, 12);
+
+        push(); //Left arm
+        translate(collectables[a].x_pos + 525, collectables[a].y_pos + 390);
+        rotate(0.5);
+        ellipse(0, 0, 35, 20);
+        pop();
+
+        push(); //Right arm
+        translate(collectables[a].x_pos + 475, collectables[a].y_pos + 390);
+        rotate(-0.5);
+        ellipse(0, 0, 35, 20);
+        pop();
+
+        //Body
+        fill(115, 50, 12);
+        ellipse(collectables[a].x_pos + 500,
+                collectables[a].y_pos + 400,
+                collectables[a].size - (collectables[a].size / 5),
+                collectables[a].size);
+
+        //Legs
+        fill(collectables[a].secondaryColour);
+        //Left leg
+        ellipse(collectables[a].x_pos + 485, collectables[a].y_pos + 410, 20, 27);
+        //Right leg
+        ellipse(collectables[a].x_pos + 515, collectables[a].y_pos + 410, 20, 27);
+
+        //Head
+        ellipse(collectables[a].x_pos + 485, collectables[a].y_pos + 360, 17); //Left ear
+        ellipse(collectables[a].x_pos + 515, collectables[a].y_pos + 360, 17); //Right ear
+
+        fill(200);
+        ellipse(collectables[a].x_pos + 485, collectables[a].y_pos + 360, 10); //Left ear inside
+        ellipse(collectables[a].x_pos + 515, collectables[a].y_pos + 360, 10); //Right ear inside
+
+        fill(collectables[a].primaryColour);
+        ellipse(collectables[a].x_pos + 500, collectables[a].y_pos + 370, 36); //Face
+
+        fill(collectables[a].secondaryColour);
+        ellipse(collectables[a].x_pos + 500, collectables[a].y_pos + 378, 23, 18); //Snout
+
+        fill(0);
+        ellipse(collectables[a].x_pos + 493, collectables[a].y_pos + 365, 5); //Left eye
+        ellipse(collectables[a].x_pos + 507, collectables[a].y_pos + 365, 5); //Right eye
+        triangle(collectables[a].x_pos + 500, collectables[a].y_pos + 379, collectables[a].x_pos + 504, collectables[a].y_pos + 375, collectables[a].x_pos + 496, collectables[a].y_pos + 375); //Nose
+        line(collectables[a].x_pos + 499.5, collectables[a].y_pos + 382, collectables[a].x_pos + 499.5, collectables[a].y_pos + 375);
+
+        beginShape();
+        noFill();
+        vertex(collectables[a].x_pos + 494, collectables[a].y_pos + 382);
+        vertex(collectables[a].x_pos + 496, collectables[a].y_pos + 383);
+        vertex(collectables[a].x_pos + 499, collectables[a].y_pos + 383);
+
+        vertex(collectables[a].x_pos + 502, collectables[a].y_pos + 383);
+        vertex(collectables[a].x_pos + 505, collectables[a].y_pos + 383);
+        vertex(collectables[a].x_pos + 506, collectables[a].y_pos + 382);
+        endShape();
+    }
     
-    //Outlining bear structure for ease of visualisation
+    pop();
+
+	// game character
+    fill(232, 232, 232);
     stroke(0);
-    
-    //Arms
-    fill(115, 50, 12);
-    push(); //Left arm
-    translate(width / 2, height / 2);
-    rotate(PI / 6.0);
-    ellipse(bear.arms.left.position_x,
-            bear.arms.left.position_y,
-            bear.arms.left.width,
-            bear.arms.left.height);
-    pop();
-    
-    push(); //Right arm
-    translate(width / 2, height / 2);
-    rotate(PI / -6.0);
-    ellipse(bear.arms.right.position_x,
-            bear.arms.right.position_y,
-            bear.arms.right.width,
-            bear.arms.right.height);
-    pop();
-    
-    //Body
-    ellipse(bear.bodyPosition_x, bear.bodyPosition_y, bear.bodyWidth, bear.bodyHeight);
-    
-    
-    //Legs
-    fill(bear.secondaryColour);
-    ellipse(bear.legs.left.position_x,
-            bear.legs.left.position_y,
-            bear.legs.left.width,
-            bear.legs.left.height); //Left leg
-    ellipse(bear.legs.right.position_x,
-            bear.legs.right.position_y,
-            bear.legs.right.width,
-            bear.legs.right.height); //Right leg
-    
-    
-    //Head
-    ellipse(bear.head.ears.left.position_x,
-            bear.head.ears.left.position_y,
-            bear.head.ears.left.width,
-            bear.head.ears.left.height); //Left ear
-    ellipse(bear.head.ears.right.position_x,
-            bear.head.ears.right.position_y,
-            bear.head.ears.right.width,
-            bear.head.ears.right.height); //Right ear
-    
-    fill(200);
-    ellipse(bear.head.ears.left.inside.position_x,
-            bear.head.ears.left.inside.position_y,
-            bear.head.ears.left.inside.width,
-            bear.head.ears.left.inside.height); //Left ear inside
-    ellipse(bear.head.ears.right.inside.position_x,
-            bear.head.ears.right.inside.position_y,
-            bear.head.ears.right.inside.width,
-            bear.head.ears.right.inside.height); //Right ear inside
-    
-    fill(bear.primaryColour);
-    ellipse(bear.head.facePosition_x,
-           bear.head.facePosition_y,
-           bear.head.facePosition_width,
-           bear.head.facePosition_height); //Face
-    
-    fill(bear.secondaryColour);
-    ellipse(bear.head.snoutPosition_x,
-           bear.head.snoutPosition_y,
-           bear.head.snoutPosition_width,
-           bear.head.snoutPosition_height); //Snout
-    
-    
-    fill(0);
-    ellipse(bear.head.eyes.left.position_x,
-           bear.head.eyes.left.position_y,
-           bear.head.eyes.left.width,
-           bear.head.eyes.left.height); //Left eye
-    ellipse(bear.head.eyes.right.position_x,
-           bear.head.eyes.right.position_y,
-           bear.head.eyes.right.width,
-           bear.head.eyes.right.height); //Right eye
-    triangle(bear.head.nose[0],
-             bear.head.nose[1],
-             bear.head.nose[2],
-             bear.head.nose[3],
-             bear.head.nose[4],
-             bear.head.nose[5]); //Nose
-    line(499.5, 382, 499.5, 375);
-    
-    beginShape();
-    noFill();
-    vertex(494, 382);
-    vertex(496, 383);
-    vertex(499, 383);
-    
-    vertex(502, 383);
-    vertex(505, 383);
-    vertex(506, 382);
-    endShape();
-    
+    rect(gameChar_x - 15, gameChar_y - 57, 30, 50, 3); // Body
+
+    rect(gameChar_x - 13, gameChar_y - 7, 7, 5); // Left leg
+    rect(gameChar_x + 6, gameChar_y - 7, 7, 5); // Right leg
+
+    rect(gameChar_x - 20, gameChar_y - 32, 5, 20); // Left arm
+    rect(gameChar_x + 15, gameChar_y - 32, 5, 20); // Right arm
+
+    line(gameChar_x - 5, gameChar_y - 42, gameChar_x + 5, gameChar_y - 42); // Mouth
+    ellipse(gameChar_x - 8, gameChar_y - 49, 1, 3); // Left eye
+    ellipse(gameChar_x + 8, gameChar_y - 49, 1, 3); // Right eye
+
+
+	// game character movement
+	if(isLeft)
+	{
+		if(gameChar_x > width * 0.2)
+		{
+			gameChar_x -= 5;
+		}
+		else
+		{
+			scrollPos += 5;
+		}
+	}
+
+	if(isRight)
+	{
+		if(gameChar_x < width * 0.8)
+		{
+			gameChar_x  += 5;
+		}
+		else
+		{
+			scrollPos -= 5; // negative for moving against the background
+		}
+
+	}
 }
 
+function keyPressed()
+{
+
+	if(key == 'A' || keyCode == 37)
+	{
+		isLeft = true;
+	}
+
+	if(key == 'D' || keyCode == 39)
+	{
+		isRight = true;
+	}
+
+}
+
+function keyReleased()
+{
+	if(key == 'A' || keyCode == 37)
+	{
+		isLeft = false;
+	}
+
+	if(key == 'D' || keyCode == 39)
+	{
+		isRight = false;
+	}
+}
 
 class Cloud{
     constructor(offset){
         this.buildCloud(offset);
     }
-    
+
     buildCloud(offset){
         fill(255, 255, 255);
         ellipse(100 + offset, 100, 50, 50);
@@ -296,6 +364,10 @@ class Cloud{
 
 class Mountain{
     constructor(offset){
+        this.buildMountain(offset);
+    }
+    
+    buildMountain(offset){
         fill(102, 51, 0);
         triangle(450 + offset, 432, (((450 + offset) + (600 + offset)) / 2), 100, 600 + offset, 432);
 

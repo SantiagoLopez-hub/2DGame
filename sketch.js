@@ -1,0 +1,205 @@
+var bear = {
+    bodyPosition_x: 500,
+    bodyPosition_y: 400,
+    bodyWidth: 40,
+    bodyHeight: 50,
+    primaryColour: [115, 50, 12],
+    secondaryColour: [133, 82, 0],
+    head: {
+        facePosition_x: 500,
+        facePosition_y: 370,
+        facePosition_width: 36,
+        facePosition_height: 36,
+        snoutPosition_x: 500,
+        snoutPosition_y: 378,
+        snoutPosition_width: 23,
+        snoutPosition_height: 18,
+        nose: [500, 379, 504, 375, 496, 375],
+        eyes: {
+            left: {
+                position_x: 493,
+                position_y: 365,
+                width: 5,
+                height: 5
+            },
+            right: {
+                position_x: 507,
+                position_y: 365,
+                width: 5,
+                height: 5
+            }
+        },
+        ears: {
+            left: {
+                position_x: 485,
+                position_y: 360,
+                width: 17,
+                height: 17,
+                inside:{
+                    position_x: 485,
+                    position_y: 360,
+                    width: 10,
+                    height: 10
+                }
+            },
+            right: {
+                position_x: 515,
+                position_y: 360,
+                width: 17,
+                height: 17,
+                inside:{
+                    position_x: 515,
+                    position_y: 360,
+                    width: 10,
+                    height: 10
+                }
+            }
+        }
+    },
+    arms: {
+        left: {
+            position_x: 20,
+            position_y: 109.5,
+            width: 15,
+            height: 30
+        },
+        right: {
+            position_x: -42,
+            position_y: 97,
+            width: 15,
+            height: 29
+        }
+    },
+    legs: {
+        left: {
+            position_x: 485,
+            position_y: 410,
+            width: 20,
+            height: 27
+        },
+        right: {
+            position_x: 515,
+            position_y: 410,
+            width: 20,
+            height: 27
+        }
+    }
+};
+
+function setup()
+{
+	createCanvas(1024, 576);
+
+    for (var key in bear) {
+        console.log(bear); // whole object
+        console.log(bear[key]); // only values
+    }
+}
+
+function draw()
+{
+	background(100, 155, 255); //fill the sky blue
+    
+	//5. a collectable token - eg. a jewel, fruit, coins
+    
+    //Outlining bear structure for ease of visualisation
+    stroke(0);
+    
+    //Arms
+    fill(115, 50, 12);
+    push(); //Left arm
+    translate(width / 2, height / 2);
+    rotate(PI / 6.0);
+    ellipse(bear.arms.left.position_x,
+            bear.arms.left.position_y,
+            bear.arms.left.width,
+            bear.arms.left.height);
+    pop();
+    
+    push(); //Right arm
+    translate(width / 2, height / 2);
+    rotate(PI / -6.0);
+    ellipse(bear.arms.right.position_x,
+            bear.arms.right.position_y,
+            bear.arms.right.width,
+            bear.arms.right.height);
+    pop();
+    
+    //Body
+    ellipse(bear.bodyPosition_x, bear.bodyPosition_y, bear.bodyWidth, bear.bodyHeight);
+    
+    
+    //Legs
+    fill(bear.secondaryColour);
+    ellipse(bear.legs.left.position_x,
+            bear.legs.left.position_y,
+            bear.legs.left.width,
+            bear.legs.left.height); //Left leg
+    ellipse(bear.legs.right.position_x,
+            bear.legs.right.position_y,
+            bear.legs.right.width,
+            bear.legs.right.height); //Right leg
+    
+    
+    //Head
+    ellipse(bear.head.ears.left.position_x,
+            bear.head.ears.left.position_y,
+            bear.head.ears.left.width,
+            bear.head.ears.left.height); //Left ear
+    ellipse(bear.head.ears.right.position_x,
+            bear.head.ears.right.position_y,
+            bear.head.ears.right.width,
+            bear.head.ears.right.height); //Right ear
+    
+    fill(200);
+    ellipse(bear.head.ears.left.inside.position_x,
+            bear.head.ears.left.inside.position_y,
+            bear.head.ears.left.inside.width,
+            bear.head.ears.left.inside.height); //Left ear inside
+    ellipse(bear.head.ears.right.inside.position_x,
+            bear.head.ears.right.inside.position_y,
+            bear.head.ears.right.inside.width,
+            bear.head.ears.right.inside.height); //Right ear inside
+    
+    fill(bear.primaryColour);
+    ellipse(bear.head.facePosition_x,
+           bear.head.facePosition_y,
+           bear.head.facePosition_width,
+           bear.head.facePosition_height); //Face
+    
+    fill(bear.secondaryColour);
+    ellipse(bear.head.snoutPosition_x,
+           bear.head.snoutPosition_y,
+           bear.head.snoutPosition_width,
+           bear.head.snoutPosition_height); //Snout
+    
+    
+    fill(0);
+    ellipse(bear.head.eyes.left.position_x,
+           bear.head.eyes.left.position_y,
+           bear.head.eyes.left.width,
+           bear.head.eyes.left.height); //Left eye
+    ellipse(bear.head.eyes.right.position_x,
+           bear.head.eyes.right.position_y,
+           bear.head.eyes.right.width,
+           bear.head.eyes.right.height); //Right eye
+    triangle(bear.head.nose[0],
+             bear.head.nose[1],
+             bear.head.nose[2],
+             bear.head.nose[3],
+             bear.head.nose[4],
+             bear.head.nose[5]); //Nose
+    line(499.5, 382, 499.5, 375);
+    
+    beginShape();
+    noFill();
+    vertex(494, 382);
+    vertex(496, 383);
+    vertex(499, 383);
+    
+    vertex(502, 383);
+    vertex(505, 383);
+    vertex(506, 382);
+    endShape();
+    
+}

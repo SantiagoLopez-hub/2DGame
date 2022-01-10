@@ -68,4 +68,40 @@ function draw()
     fill(255);
     ellipse(gameChar_x, gameChar_y - 67, 20, 5); // Inner Halo
     
+
+
+	//Walking, turned left
+	stroke(100);
+	noFill();
+	rect(20, 260, 50, 80);
+	noStroke();
+	fill(0);
+	text("3. Walking left", 20, 360);
+
+	gameChar_x = 45;
+	gameChar_y = 337;
+    
+    fill(232, 232, 232);
+    stroke(0);
+    rect(gameChar_x - 15, gameChar_y - 57, 30, 50, 3); // Body
+    
+    rect(gameChar_x - 13, gameChar_y - 7, 7, 3); // Left leg
+    rect(gameChar_x + 6, gameChar_y - 7, 7, 5); // Right leg
+    
+    rect(gameChar_x - 20, gameChar_y - 32, 5, 10); // Left arm
+    rect(gameChar_x - 25, gameChar_y - 22, 5, 10); // Left arm
+    
+    rect(gameChar_x + 15, gameChar_y - 32, 5, 5); // Right arm
+    rect(gameChar_x + 10, gameChar_y - 27, 5, 5); // Right arm
+    rect(gameChar_x + 5, gameChar_y - 22, 5, 10); // Right arm
+    
+    line(gameChar_x - 5, gameChar_y - 42, gameChar_x + 2, gameChar_y - 42); // Mouth
+    ellipse(gameChar_x - 11, gameChar_y - 49, 1, 3); // Left eye
+    ellipse(gameChar_x + 5, gameChar_y - 49, 1, 3); // Right eye
+    
+    noStroke();
+    fill(255);
+    ellipse(gameChar_x - 10, gameChar_y - 22, 3, 15); // Reflection
+
+
 }
